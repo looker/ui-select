@@ -550,8 +550,22 @@ uis.controller('uiSelectCtrl',
           if (containerWidth === 0) {
             return false;
           }
-          var inputWidth = containerWidth - input.offsetLeft - 10;
-          if (inputWidth < 50) inputWidth = containerWidth;
+          ctrl.searchInput.parent().removeAttr('style');
+          ctrl.searchInput.css('width', '0');
+
+          var selectMatchWidth = ctrl.searchInput.siblings().width();
+          var availableSpace = ctrl.searchInput.parent().width() - selectMatchWidth;
+          var inputWidth = containerWidth - input.offsetLeft - 5;
+
+          // if input is pushed to next line, reduce the width to fit on previous line
+          if (availableSpace < 10 && input.offsetLeft < 10) inputWidth = availableSpace;
+
+          if (inputWidth < 25) {
+            // reduce the parent width to push the last tag to the next line
+            var parentWidth = ctrl.searchInput.parent().width() - availableSpace - 2;
+            ctrl.searchInput.parent().css('width', parentWidth+'px');
+            inputWidth = parentWidth - input.offsetLeft;
+          }
           ctrl.searchInput.css('width', inputWidth+'px');
           return true;
         };
