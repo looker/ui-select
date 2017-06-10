@@ -26,6 +26,7 @@ uis.controller('uiSelectCtrl',
   ctrl.removeSelected = uiSelectConfig.removeSelected; //If selected item(s) should be removed from dropdown list
   ctrl.closeOnSelect = true; //Initialized inside uiSelect directive link function
   ctrl.skipFocusser = false; //Set to true to avoid returning focus to ctrl when item is selected
+  ctrl.tagOnBlur = false;
   ctrl.search = EMPTY_SEARCH;
 
   ctrl.activeIndex = 0; //Dropdown of choices
@@ -461,7 +462,9 @@ uis.controller('uiSelectCtrl',
     if (!ctrl.open) return;
     if (ctrl.ngModel && ctrl.ngModel.$setTouched) ctrl.ngModel.$setTouched();
     ctrl.open = false;
-    _resetSearchInput();
+    if (!ctrl.tagOnBlur) {
+      _resetSearchInput();
+    }
     $scope.$broadcast('uis:close', skipFocusser);
 
   };
@@ -727,6 +730,28 @@ uis.controller('uiSelectCtrl',
         e.preventDefault();
         e.stopPropagation();
       }
+    }
+  });
+
+  // Allow tagging on blur
+  ctrl.searchInput.on('blur', function() {
+    if (ctrl.tagging.isActivated && ctrl.tagOnBlur) {
+      $timeout(function() {
+        ctrl.searchInput.triggerHandler('tagged');
+        var newItem = ctrl.search;
+
+        // replace all tagging tokens
+        if (ctrl.taggingTokens.isActivated) {
+          for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {
+            newItem = _replaceTaggingTokens(newItem, ctrl.taggingTokens.tokens[i]);
+          }
+        }
+
+        if ( ctrl.tagging.fct ) {
+          newItem = ctrl.tagging.fct( newItem );
+        }
+        if (newItem) ctrl.select(newItem, true);
+      });
     }
   });
 

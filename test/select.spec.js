@@ -158,6 +158,7 @@ describe('ui-select tests', function() {
       if (attrs.tagging !== undefined) { attrsHtml += ' tagging="' + attrs.tagging + '"'; }
       if (attrs.taggingTokens !== undefined) { attrsHtml += ' tagging-tokens="' + attrs.taggingTokens + '"'; }
       if (attrs.taggingTokenEscape !== undefined) { attrsHtml += ' tagging-token-escape="' + attrs.taggingTokenEscape + '"'; }
+      if (attrs.tagOnBlur !== undefined) { attrsHtml += ' tag-on-blur="' + attrs.tagOnBlur + '"'; }
       if (attrs.title !== undefined) { attrsHtml += ' title="' + attrs.title + '"'; }
       if (attrs.appendToBody !== undefined) { attrsHtml += ' append-to-body="' + attrs.appendToBody + '"'; }
       if (attrs.allowClear !== undefined) { matchAttrsHtml += ' allow-clear="' + attrs.allowClear + '"';}
@@ -1817,6 +1818,7 @@ describe('ui-select tests', function() {
             if (attrs.taggingTokens !== undefined) { attrsHtml += ' tagging-tokens="' + attrs.taggingTokens + '"'; }
             if (attrs.taggingLabel !== undefined) { attrsHtml += ' tagging-label="' + attrs.taggingLabel + '"'; }
             if (attrs.taggingTokenEscape !== undefined) { attrsHtml += ' tagging-token-escape="' + attrs.taggingTokenEscape + '"'; }
+            if (attrs.tagOnBlur !== undefined) { attrsHtml += ' tag-on-blur="' + attrs.tagOnBlur + '"'; }
             if (attrs.inputId !== undefined) { attrsHtml += ' input-id="' + attrs.inputId + '"'; }
             if (attrs.groupBy !== undefined) { choicesAttrsHtml += ' group-by="' + attrs.groupBy + '"'; }
             if (attrs.lockChoice !== undefined) { matchesAttrsHtml += ' ui-lock-choice="' + attrs.lockChoice + '"'; }
@@ -2807,6 +2809,50 @@ describe('ui-select tests', function() {
       triggerKeydown(searchInput, Key.Comma);
       $timeout.flush();
       expect($(el).scope().$select.selected).toEqual(['tag,,tag']);
+    });
+  });
+
+  describe('tagOnBlur option', function () {
+    it('should be false by default', function() {
+      var el = createUiSelect();
+      expect(el.scope().$select.tagOnBlur).toEqual(false);
+    });
+
+    it('should be true when set', function() {
+      var el = createUiSelect({tagOnBlur: true});
+      expect(el.scope().$select.tagOnBlur).toEqual(true);
+    });
+
+    it('should tag on blur when true', function () {
+      var el = createUiSelect({tagging: true, tagOnBlur: true});
+      setSearchText(el, 'tag');
+      el.scope().$select.searchInput.trigger('blur');
+      $timeout.flush();
+      expect(el.scope().$select.selected).toEqual('tag');
+    });
+
+    it('should tag on blur when true with multiple', function () {
+      var el = createUiSelectMultiple({tagging: true, tagOnBlur: true});
+      setSearchText(el, 'tag');
+      el.scope().$select.searchInput.trigger('blur');
+      $timeout.flush();
+      expect(el.scope().$select.selected).toEqual(['tag']);
+    });
+
+    it('should convert escaped token to token', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ',', tagOnBlur: true});
+      setSearchText(el, 'tag^,tag');
+      el.scope().$select.searchInput.trigger('blur');
+      $timeout.flush();
+      expect(el.scope().$select.selected).toEqual(['tag,tag']);
+    });
+
+    it('should not remove tagging token unless at the end', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ',', tagOnBlur: true});
+      setSearchText(el, 'tag,tag,');
+      el.scope().$select.searchInput.trigger('blur');
+      $timeout.flush();
+      expect(el.scope().$select.selected).toEqual(['tag,tag']);
     });
   });
 

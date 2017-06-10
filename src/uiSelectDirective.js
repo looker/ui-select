@@ -149,6 +149,11 @@ uis.directive('uiSelect',
           }
         });
 
+        attrs.$observe('tagOnBlur', function() {
+          // $eval() is needed otherwise we get a string instead of a boolean
+          $select.tagOnBlur = scope.$eval(attrs.tagOnBlur) === true ? true : false;
+        });
+
         attrs.$observe('spinnerEnabled', function() {
           // $eval() is needed otherwise we get a string instead of a boolean
           var spinnerEnabled = scope.$eval(attrs.spinnerEnabled);
