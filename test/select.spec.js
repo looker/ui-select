@@ -12,7 +12,8 @@ describe('ui-select tests', function() {
     Right: 39,
     Backspace: 8,
     Delete: 46,
-    Escape: 27
+    Escape: 27,
+    Comma: 188
   };
 
   //create a directive that wraps ui-select
@@ -156,6 +157,7 @@ describe('ui-select tests', function() {
       if (attrs.tabindex !== undefined) { attrsHtml += ' tabindex="' + attrs.tabindex + '"'; }
       if (attrs.tagging !== undefined) { attrsHtml += ' tagging="' + attrs.tagging + '"'; }
       if (attrs.taggingTokens !== undefined) { attrsHtml += ' tagging-tokens="' + attrs.taggingTokens + '"'; }
+      if (attrs.taggingTokenEscape !== undefined) { attrsHtml += ' tagging-token-escape="' + attrs.taggingTokenEscape + '"'; }
       if (attrs.title !== undefined) { attrsHtml += ' title="' + attrs.title + '"'; }
       if (attrs.appendToBody !== undefined) { attrsHtml += ' append-to-body="' + attrs.appendToBody + '"'; }
       if (attrs.allowClear !== undefined) { matchAttrsHtml += ' allow-clear="' + attrs.allowClear + '"';}
@@ -1814,6 +1816,7 @@ describe('ui-select tests', function() {
             if (attrs.tagging !== undefined) { attrsHtml += ' tagging="' + attrs.tagging + '"'; }
             if (attrs.taggingTokens !== undefined) { attrsHtml += ' tagging-tokens="' + attrs.taggingTokens + '"'; }
             if (attrs.taggingLabel !== undefined) { attrsHtml += ' tagging-label="' + attrs.taggingLabel + '"'; }
+            if (attrs.taggingTokenEscape !== undefined) { attrsHtml += ' tagging-token-escape="' + attrs.taggingTokenEscape + '"'; }
             if (attrs.inputId !== undefined) { attrsHtml += ' input-id="' + attrs.inputId + '"'; }
             if (attrs.groupBy !== undefined) { choicesAttrsHtml += ' group-by="' + attrs.groupBy + '"'; }
             if (attrs.lockChoice !== undefined) { matchesAttrsHtml += ' ui-lock-choice="' + attrs.lockChoice + '"'; }
@@ -2763,6 +2766,49 @@ describe('ui-select tests', function() {
          clickItem(el, 'Wladimir');
          expect(el.scope().$select.selected.length).toBe(2);
      });
+
+  describe('taggingTokenEscape option multiple', function() {
+    it('should have a set value', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^'});
+      expect(el.scope().$select.taggingTokenEscape).toEqual('^');
+    });
+
+    it('should tag normally if not set', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokens: ','});
+      var searchInput = el.find('.ui-select-search');
+      setSearchText(el, 'tag');
+      triggerKeydown(searchInput, Key.Comma);
+      $timeout.flush();
+      expect($(el).scope().$select.selected).toEqual(['tag']);
+    });
+
+    it('should not tag after escape sequence', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ','});
+      var searchInput = el.find('.ui-select-search');
+      setSearchText(el, 'tag^');
+      triggerKeydown(searchInput, Key.Comma);
+      expect(function() {$timeout.flush();}).toThrow(); // ensure there are no deferred tasks
+      expect($(el).scope().$select.selected).toEqual([]);
+    });
+
+    it('should convert escaped token to token when tagging happens', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ','});
+      var searchInput = el.find('.ui-select-search');
+      setSearchText(el, 'tag^,');
+      triggerKeydown(searchInput, Key.Comma);
+      $timeout.flush();
+      expect($(el).scope().$select.selected).toEqual(['tag,']);
+    });
+
+    it('should not remove tagging token in the middle', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ','});
+      var searchInput = el.find('.ui-select-search');
+      setSearchText(el, 'tag,^,tag');
+      triggerKeydown(searchInput, Key.Comma);
+      $timeout.flush();
+      expect($(el).scope().$select.selected).toEqual(['tag,,tag']);
+    });
+  });
 
   describe('resetSearchInput option multiple', function () {
       it('should be true by default', function () {

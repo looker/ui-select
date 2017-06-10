@@ -143,6 +143,12 @@ uis.directive('uiSelect',
           }
         });
 
+        attrs.$observe('taggingTokenEscape', function() {
+          if (attrs.tagging !== undefined) {
+            $select.taggingTokenEscape = attrs.taggingTokenEscape;
+          }
+        });
+
         attrs.$observe('spinnerEnabled', function() {
           // $eval() is needed otherwise we get a string instead of a boolean
           var spinnerEnabled = scope.$eval(attrs.spinnerEnabled);
