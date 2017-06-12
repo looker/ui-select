@@ -1819,6 +1819,7 @@ describe('ui-select tests', function() {
             if (attrs.taggingLabel !== undefined) { attrsHtml += ' tagging-label="' + attrs.taggingLabel + '"'; }
             if (attrs.taggingTokenEscape !== undefined) { attrsHtml += ' tagging-token-escape="' + attrs.taggingTokenEscape + '"'; }
             if (attrs.tagOnBlur !== undefined) { attrsHtml += ' tag-on-blur="' + attrs.tagOnBlur + '"'; }
+            if (attrs.paste !== undefined) { attrsHtml += ' paste="' + attrs.paste + '"'; }
             if (attrs.inputId !== undefined) { attrsHtml += ' input-id="' + attrs.inputId + '"'; }
             if (attrs.groupBy !== undefined) { choicesAttrsHtml += ' group-by="' + attrs.groupBy + '"'; }
             if (attrs.lockChoice !== undefined) { matchesAttrsHtml += ' ui-lock-choice="' + attrs.lockChoice + '"'; }
@@ -2738,6 +2739,17 @@ describe('ui-select tests', function() {
       triggerPaste(el.find('input'), 'tag1');
 
       expect($(el).scope().$select.selected).toEqual(['tag1']);
+    });
+
+    it('should use paste function with tagging-tokens', function() {
+      scope.pasteFunc = function(string){};
+      spyOn(scope, 'pasteFunc');
+
+      var el = createUiSelectMultiple({tagging: true, paste: "pasteFunc", taggingTokens: ","});
+      clickMatch(el);
+      triggerPaste(el.find('input'), 'tag1');
+
+      expect(scope.pasteFunc).toHaveBeenCalledWith('tag1');
     });
 
     it('should add an id to the search input field', function () {
