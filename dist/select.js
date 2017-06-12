@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2016-11-01T19:11:08.927Z
+ * Version: 0.19.6 - 2017-06-12T20:36:01.274Z
  * License: MIT
  */
 
@@ -297,10 +297,12 @@ uis.controller('uiSelectCtrl',
   ctrl.refreshing = false;
   ctrl.spinnerEnabled = uiSelectConfig.spinnerEnabled;
   ctrl.spinnerClass = uiSelectConfig.spinnerClass;
+  ctrl.taggingTokenEscape = uiSelectConfig.taggingTokenEscape;
 
   ctrl.removeSelected = uiSelectConfig.removeSelected; //If selected item(s) should be removed from dropdown list
   ctrl.closeOnSelect = true; //Initialized inside uiSelect directive link function
   ctrl.skipFocusser = false; //Set to true to avoid returning focus to ctrl when item is selected
+  ctrl.tagOnBlur = false;
   ctrl.search = EMPTY_SEARCH;
 
   ctrl.activeIndex = 0; //Dropdown of choices
@@ -736,7 +738,9 @@ uis.controller('uiSelectCtrl',
     if (!ctrl.open) return;
     if (ctrl.ngModel && ctrl.ngModel.$setTouched) ctrl.ngModel.$setTouched();
     ctrl.open = false;
-    _resetSearchInput();
+    if (!ctrl.tagOnBlur) {
+      _resetSearchInput();
+    }
     $scope.$broadcast('uis:close', skipFocusser);
 
   };
@@ -885,6 +889,21 @@ uis.controller('uiSelectCtrl',
     return processed;
   }
 
+  function _replaceTaggingTokens(search, token) {
+    var tokenRegex = new RegExp(token + '$');
+    if ( ctrl.taggingTokenEscape ) {
+      // replace escaped tagging tokens with just the token
+      // and remove tagging token if it's the last character in string
+      var chunks = search.split(ctrl.taggingTokenEscape + token);
+      chunks.push(chunks.pop().replace(tokenRegex, ''));
+      search = chunks.join(token).trim();
+    } else {
+      // remove tagging token if it's the last character
+      search = search.replace(tokenRegex, '').trim();
+    }
+    return search;
+  }
+
   // Bind to keyboard shortcuts
   ctrl.searchInput.on('keydown', function(e) {
 
@@ -913,7 +932,8 @@ uis.controller('uiSelectCtrl',
           for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {
             if ( ctrl.taggingTokens.tokens[i] === KEY.MAP[e.keyCode] ) {
               // make sure there is a new value to push via tagging
-              if ( ctrl.search.length > 0 ) {
+              // do not tag if tagging token is preceeded by escape sequence
+              if ( ctrl.search.length > 0 && !ctrl.search.endsWith(ctrl.taggingTokenEscape) ) {
                 tagged = true;
               }
             }
@@ -921,7 +941,7 @@ uis.controller('uiSelectCtrl',
           if ( tagged ) {
             $timeout(function() {
               ctrl.searchInput.triggerHandler('tagged');
-              var newItem = ctrl.search.replace(KEY.MAP[e.keyCode],'').trim();
+              var newItem = _replaceTaggingTokens(ctrl.search, KEY.MAP[e.keyCode]);
               if ( ctrl.tagging.fct ) {
                 newItem = ctrl.tagging.fct( newItem );
               }
@@ -957,8 +977,13 @@ uis.controller('uiSelectCtrl',
     data = ctrl.search + data;
 
     if (data && data.length > 0) {
-      // If tagging try to split by tokens and add items
-      if (ctrl.taggingTokens.isActivated) {
+      if (ctrl.paste) {
+        ctrl.paste(data);
+        ctrl.search = EMPTY_SEARCH;
+        e.preventDefault();
+        e.stopPropagation();
+      } else if (ctrl.taggingTokens.isActivated) {
+        // If tagging try to split by tokens and add items
         var items = [];
         for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {  // split by first token that is contained in data
           var separator = KEY.toSeparator(ctrl.taggingTokens.tokens[i]) || ctrl.taggingTokens.tokens[i];
@@ -980,12 +1005,29 @@ uis.controller('uiSelectCtrl',
         ctrl.search = oldsearch || EMPTY_SEARCH;
         e.preventDefault();
         e.stopPropagation();
-      } else if (ctrl.paste) {
-        ctrl.paste(data);
-        ctrl.search = EMPTY_SEARCH;
-        e.preventDefault();
-        e.stopPropagation();
       }
+    }
+  });
+
+  // Allow tagging on blur
+  ctrl.searchInput.on('blur', function() {
+    if (ctrl.tagging.isActivated && ctrl.tagOnBlur) {
+      $timeout(function() {
+        ctrl.searchInput.triggerHandler('tagged');
+        var newItem = ctrl.search;
+
+        // replace all tagging tokens
+        if (ctrl.taggingTokens.isActivated) {
+          for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {
+            newItem = _replaceTaggingTokens(newItem, ctrl.taggingTokens.tokens[i]);
+          }
+        }
+
+        if ( ctrl.tagging.fct ) {
+          newItem = ctrl.tagging.fct( newItem );
+        }
+        if (newItem) ctrl.select(newItem, true);
+      });
     }
   });
 
@@ -1188,6 +1230,17 @@ uis.directive('uiSelect',
             var tokens = attrs.taggingTokens !== undefined ? attrs.taggingTokens.split('|') : [',','ENTER'];
             $select.taggingTokens = {isActivated: true, tokens: tokens };
           }
+        });
+
+        attrs.$observe('taggingTokenEscape', function() {
+          if (attrs.tagging !== undefined) {
+            $select.taggingTokenEscape = attrs.taggingTokenEscape;
+          }
+        });
+
+        attrs.$observe('tagOnBlur', function() {
+          // $eval() is needed otherwise we get a string instead of a boolean
+          $select.tagOnBlur = scope.$eval(attrs.tagOnBlur) === true ? true : false;
         });
 
         attrs.$observe('spinnerEnabled', function() {
