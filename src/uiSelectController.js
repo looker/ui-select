@@ -681,8 +681,13 @@ uis.controller('uiSelectCtrl',
     data = ctrl.search + data;
 
     if (data && data.length > 0) {
-      // If tagging try to split by tokens and add items
-      if (ctrl.taggingTokens.isActivated) {
+      if (ctrl.paste) {
+        ctrl.paste(data);
+        ctrl.search = EMPTY_SEARCH;
+        e.preventDefault();
+        e.stopPropagation();
+      } else if (ctrl.taggingTokens.isActivated) {
+        // If tagging try to split by tokens and add items
         var items = [];
         for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {  // split by first token that is contained in data
           var separator = KEY.toSeparator(ctrl.taggingTokens.tokens[i]) || ctrl.taggingTokens.tokens[i];
@@ -702,11 +707,6 @@ uis.controller('uiSelectCtrl',
           }
         });
         ctrl.search = oldsearch || EMPTY_SEARCH;
-        e.preventDefault();
-        e.stopPropagation();
-      } else if (ctrl.paste) {
-        ctrl.paste(data);
-        ctrl.search = EMPTY_SEARCH;
         e.preventDefault();
         e.stopPropagation();
       }
