@@ -616,8 +616,7 @@ uis.controller('uiSelectCtrl',
   }
 
   function _replaceTaggingTokens(search, token) {
-    // do not replace token if it is a non-printable character
-    if (~["ENTER","SPACE","TAB"].indexOf(token)) return search;
+    if (token.length > 1) return search; // do not replace token if it is a special key
 
     var tokenRegex = new RegExp(token + '$');
     if ( ctrl.taggingTokenEscape ) {

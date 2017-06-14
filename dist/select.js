@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2017-06-14T22:51:26.775Z
+ * Version: 0.19.6 - 2017-06-14T23:04:00.285Z
  * License: MIT
  */
 
@@ -896,8 +896,7 @@ uis.controller('uiSelectCtrl',
   }
 
   function _replaceTaggingTokens(search, token) {
-    // do not replace token if it is a non-printable character
-    if (~["ENTER","SPACE","TAB"].indexOf(token)) return search;
+    if (token.length > 1) return search; // do not replace token if it is a special key
 
     var tokenRegex = new RegExp(token + '$');
     if ( ctrl.taggingTokenEscape ) {
