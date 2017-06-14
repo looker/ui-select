@@ -212,7 +212,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         scope.$apply(function() {
           var processed = false;
           // var tagged = false; //Checkme
-          if(KEY.isHorizontalMovement(key) || KEY.isControlAndKey(e, KEY.A)){
+          if(KEY.isHorizontalMovement(key) || KEY.isMetaAndKey(e, KEY.A)){
             processed = _handleMatchSelection(e);
           } else {
             $selectMultiple.allChoicesActive = false;
@@ -232,7 +232,6 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       }
       // Handles selected options in "multiple" mode
       function _handleMatchSelection(e){
-        var key = e.which;
         var caretPosition = _getCaretPosition($select.searchInput[0]),
             length = $select.selected.length,
             // none  = -1,
@@ -241,7 +240,8 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             curr  = $selectMultiple.activeMatchIndex,
             next  = $selectMultiple.activeMatchIndex+1,
             prev  = $selectMultiple.activeMatchIndex-1,
-            newIndex = curr;
+            newIndex = curr,
+            key = e.which;
 
         if(caretPosition > 0 || ($select.search.length && key == KEY.RIGHT)) return false;
 

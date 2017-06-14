@@ -36,7 +36,7 @@ var KEY = {
 
         return false;
     },
-    isControlAndKey: function (e, key) {
+    isMetaAndKey: function (e, key) {
       return e.metaKey && e.which === key;
     },
     isFunctionKey: function (k) {
