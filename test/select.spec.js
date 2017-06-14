@@ -2854,6 +2854,22 @@ describe('ui-select tests', function() {
       expect($(el).scope().$select.selected).toEqual(['tag,']);
     });
 
+    it('should convert escaped token to token when tagging with ENTER with no tagging label', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ',', taggingLabel: 'false'});
+      var searchInput = el.find('.ui-select-search');
+      setSearchText(el, 'tag^,');
+      triggerKeydown(searchInput, Key.Enter);
+      expect($(el).scope().$select.selected).toEqual(['tag,']);
+    });
+
+    it('should convert escaped token to token when tagging with TAB with no tagging label', function () {
+      var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ',', taggingLabel: 'false'});
+      var searchInput = el.find('.ui-select-search');
+      setSearchText(el, 'tag^,');
+      triggerKeydown(searchInput, Key.Tab);
+      expect($(el).scope().$select.selected).toEqual(['tag,']);
+    });
+
     it('should not remove tagging token in the middle', function () {
       var el = createUiSelectMultiple({tagging: true, taggingTokenEscape: '^', taggingTokens: ','});
       var searchInput = el.find('.ui-select-search');
