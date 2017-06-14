@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2017-06-13T23:32:04.601Z
+ * Version: 0.19.6 - 2017-06-14T06:02:26.658Z
  * License: MIT
  */
 
@@ -46,7 +46,7 @@ var KEY = {
 
         return false;
     },
-    isControlAndKey: function (e, key) {
+    isMetaAndKey: function (e, key) {
       return e.metaKey && e.which === key;
     },
     isFunctionKey: function (k) {
@@ -1783,7 +1783,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         scope.$apply(function() {
           var processed = false;
           // var tagged = false; //Checkme
-          if(KEY.isHorizontalMovement(key) || KEY.isControlAndKey(e, KEY.A)){
+          if(KEY.isHorizontalMovement(key) || KEY.isMetaAndKey(e, KEY.A)){
             processed = _handleMatchSelection(e);
           } else {
             $selectMultiple.allChoicesActive = false;
@@ -1797,13 +1797,16 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         });
       });
       function _getCaretPosition(el) {
-        if(angular.isNumber(el.selectionStart)) return el.selectionStart;
+        if(angular.isNumber(el.selectionStart)) {
+          // if multiple characters are selected, return the end of selection
+          if(el.selectionEnd > el.selectionStart) return el.selectionEnd;
+          else return el.selectionStart;
+        }
         // selectionStart is not supported in IE8 and we don't want hacky workarounds so we compromise
         else return el.value.length;
       }
       // Handles selected options in "multiple" mode
       function _handleMatchSelection(e){
-        var key = e.which;
         var caretPosition = _getCaretPosition($select.searchInput[0]),
             length = $select.selected.length,
             // none  = -1,
@@ -1812,7 +1815,8 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             curr  = $selectMultiple.activeMatchIndex,
             next  = $selectMultiple.activeMatchIndex+1,
             prev  = $selectMultiple.activeMatchIndex-1,
-            newIndex = curr;
+            newIndex = curr,
+            key = e.which;
 
         if(caretPosition > 0 || ($select.search.length && key == KEY.RIGHT)) return false;
 
