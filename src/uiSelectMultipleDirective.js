@@ -226,7 +226,11 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         });
       });
       function _getCaretPosition(el) {
-        if(angular.isNumber(el.selectionStart)) return el.selectionStart;
+        if(angular.isNumber(el.selectionStart)) {
+          // if multiple characters are selected, return the end of selection
+          if(el.selectionEnd > el.selectionStart) return el.selectionEnd;
+          else return el.selectionStart;
+        }
         // selectionStart is not supported in IE8 and we don't want hacky workarounds so we compromise
         else return el.value.length;
       }
