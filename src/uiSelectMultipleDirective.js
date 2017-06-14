@@ -16,6 +16,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       $scope.$evalAsync(function(){ ngModel = $scope.ngModel; });
 
       ctrl.activeMatchIndex = -1;
+      ctrl.allChoicesActive = false;
 
       ctrl.updateModel = function(){
         ngModel.$setViewValue(Date.now()); //Set timestamp as a unique string to force changes
@@ -60,6 +61,21 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         ctrl.updateModel();
 
         return true;
+      };
+
+      ctrl.removeAllChoices = function(){
+        $select.selected = [];
+        ctrl.activeMatchIndex = -1;
+        ctrl.allChoicesActive = false;
+        $select.sizeSearchInput();
+
+        ctrl.updateModel();
+
+        return true;
+      };
+
+      ctrl.isActiveChoice = function(index){
+        return ctrl.allChoicesActive || ctrl.activeMatchIndex === index;
       };
 
       ctrl.getPlaceholder = function(){
@@ -182,6 +198,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       });
 
       scope.$on('uis:activate', function () {
+        $selectMultiple.allChoicesActive = false;
         $selectMultiple.activeMatchIndex = -1;
       });
 
@@ -195,8 +212,10 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         scope.$apply(function() {
           var processed = false;
           // var tagged = false; //Checkme
-          if(KEY.isHorizontalMovement(key)){
-            processed = _handleMatchSelection(key);
+          if(KEY.isHorizontalMovement(key) || KEY.isMetaAndKey(e, KEY.A)){
+            processed = _handleMatchSelection(e);
+          } else {
+            $selectMultiple.allChoicesActive = false;
           }
           if (processed  && key != KEY.TAB) {
             //TODO Check si el tab selecciona aun correctamente
@@ -207,12 +226,16 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         });
       });
       function _getCaretPosition(el) {
-        if(angular.isNumber(el.selectionStart)) return el.selectionStart;
+        if(angular.isNumber(el.selectionStart)) {
+          // if multiple characters are selected, return the end of selection
+          if(el.selectionEnd > el.selectionStart) return el.selectionEnd;
+          else return el.selectionStart;
+        }
         // selectionStart is not supported in IE8 and we don't want hacky workarounds so we compromise
         else return el.value.length;
       }
       // Handles selected options in "multiple" mode
-      function _handleMatchSelection(key){
+      function _handleMatchSelection(e){
         var caretPosition = _getCaretPosition($select.searchInput[0]),
             length = $select.selected.length,
             // none  = -1,
@@ -221,7 +244,8 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             curr  = $selectMultiple.activeMatchIndex,
             next  = $selectMultiple.activeMatchIndex+1,
             prev  = $selectMultiple.activeMatchIndex-1,
-            newIndex = curr;
+            newIndex = curr,
+            key = e.which;
 
         if(caretPosition > 0 || ($select.search.length && key == KEY.RIGHT)) return false;
 
@@ -230,12 +254,14 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         function getNewActiveMatchIndex(){
           switch(key){
             case KEY.LEFT:
+              $selectMultiple.allChoicesActive = false;
               // Select previous/first item
               if(~$selectMultiple.activeMatchIndex) return prev;
               // Select last item
               else return last;
               break;
             case KEY.RIGHT:
+              $selectMultiple.allChoicesActive = false;
               // Open drop-down
               if(!~$selectMultiple.activeMatchIndex || curr === last){
                 $select.activate();
@@ -245,8 +271,11 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
               else return next;
               break;
             case KEY.BACKSPACE:
-              // Remove selected item and select previous/first
-              if(~$selectMultiple.activeMatchIndex){
+              if ($selectMultiple.allChoicesActive) {
+                $selectMultiple.removeAllChoices();
+                return false;
+              } else if (~$selectMultiple.activeMatchIndex) {
+                // Remove selected item and select previous/first
                 if($selectMultiple.removeChoice(curr)) {
                   return prev;
                 } else {
@@ -259,12 +288,21 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
               }              
               break;
             case KEY.DELETE:
-              // Remove selected item and select next item
-              if(~$selectMultiple.activeMatchIndex){
+              if ($selectMultiple.allChoicesActive) {
+                $selectMultiple.removeAllChoices();
+                return false;
+              } else if (~$selectMultiple.activeMatchIndex) {
+                // Remove selected item and select next item
                 $selectMultiple.removeChoice($selectMultiple.activeMatchIndex);
                 return curr;
               }
               else return false;
+              break;
+            case KEY.A:
+              if (e.metaKey) {
+                $selectMultiple.allChoicesActive = true;
+                return false;
+              }
           }
         }
 
@@ -442,6 +480,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
       $select.searchInput.on('blur', function() {
         $timeout(function() {
+          $selectMultiple.allChoicesActive = false;
           $selectMultiple.activeMatchIndex = -1;
         });
       });

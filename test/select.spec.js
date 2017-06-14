@@ -13,7 +13,8 @@ describe('ui-select tests', function() {
     Backspace: 8,
     Delete: 46,
     Escape: 27,
-    Comma: 188
+    Comma: 188,
+    A: 65,
   };
 
   //create a directive that wraps ui-select
@@ -209,10 +210,11 @@ describe('ui-select tests', function() {
     return el.scope().$select.open && el.hasClass('open');
   }
 
-  function triggerKeydown(element, keyCode) {
+  function triggerKeydown(element, keyCode, isMetaKey) {
     var e = jQuery.Event("keydown");
     e.which = keyCode;
     e.keyCode = keyCode;
+    e.metaKey = isMetaKey;
     element.trigger(e);
   }
   function triggerPaste(element, text, isClipboardEvent) {
@@ -2780,6 +2782,44 @@ describe('ui-select tests', function() {
          clickItem(el, 'Wladimir');
          expect(el.scope().$select.selected.length).toBe(2);
      });
+
+    describe('selecting all tags with mod+A', function() {
+      beforeEach(function() {
+        this.el = createUiSelectMultiple();
+        this.searchInput = this.el.find('.ui-select-search');
+        this.el.scope().$select.selected = ['tag1', 'tag2'];
+        triggerKeydown(this.searchInput, Key.A, true);
+      });
+
+      it('should select all tags with mod+A', function() {
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(true);
+      });
+
+      it('should deselect all tags on blur', function() {
+        this.searchInput.trigger('blur');
+        $timeout.flush();
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
+      });
+
+      it('should deselect all tags on new keydown', function() {
+        triggerKeydown(this.searchInput, Key.A);
+        $timeout.flush();
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
+      });
+
+      it('should deselect all tags on horizontal movement key', function() {
+        triggerKeydown(this.searchInput, Key.Left);
+        $timeout.flush();
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
+      });
+
+      it('should delete all tags on delete', function() {
+        triggerKeydown(this.searchInput, Key.Delete);
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
+        expect(this.el.scope().$select.selected).toEqual([]);
+      });
+
+    });
 
   describe('taggingTokenEscape option multiple', function() {
     it('should have a set value', function () {
