@@ -402,7 +402,9 @@ uis.controller('uiSelectCtrl',
           if ( ctrl.taggingLabel === false ) {
             if ( ctrl.activeIndex < 0 ) {
               if (item === undefined) {
-                item = ctrl.tagging.fct !== undefined ? ctrl.tagging.fct(ctrl.search) : ctrl.search;
+                // when pulling from ctrl.search, deal with tagging tokens
+                item = _replaceAllTaggingTokens(ctrl.search);
+                if (ctrl.tagging.fct) item = ctrl.tagging.fct(item);
               }
               if (!item || angular.equals( ctrl.items[0], item ) ) {
                 return;
@@ -614,6 +616,8 @@ uis.controller('uiSelectCtrl',
   }
 
   function _replaceTaggingTokens(search, token) {
+    if (token.length > 1) return search; // do not replace token if it is a special key
+
     var tokenRegex = new RegExp(token + '$');
     if ( ctrl.taggingTokenEscape ) {
       // replace escaped tagging tokens with just the token
@@ -624,6 +628,16 @@ uis.controller('uiSelectCtrl',
     } else {
       // remove tagging token if it's the last character
       search = search.replace(tokenRegex, '').trim();
+    }
+    return search;
+  }
+
+  function _replaceAllTaggingTokens(search) {
+    if (ctrl.taggingTokens.isActivated) {
+      for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {
+        var token = ctrl.taggingTokens.tokens[i];
+        search = _replaceTaggingTokens(search, token);
+      }
     }
     return search;
   }
@@ -738,15 +752,7 @@ uis.controller('uiSelectCtrl',
     if (ctrl.tagging.isActivated && ctrl.tagOnBlur) {
       $timeout(function() {
         ctrl.searchInput.triggerHandler('tagged');
-        var newItem = ctrl.search;
-
-        // replace all tagging tokens
-        if (ctrl.taggingTokens.isActivated) {
-          for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {
-            newItem = _replaceTaggingTokens(newItem, ctrl.taggingTokens.tokens[i]);
-          }
-        }
-
+        var newItem = _replaceAllTaggingTokens(ctrl.search);
         if ( ctrl.tagging.fct ) {
           newItem = ctrl.tagging.fct( newItem );
         }
