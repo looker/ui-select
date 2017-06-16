@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2017-06-14T23:04:00.285Z
+ * Version: 0.19.6 - 2017-06-16T23:14:43.938Z
  * License: MIT
  */
 
@@ -1028,7 +1028,9 @@ uis.controller('uiSelectCtrl',
   });
 
   // Allow tagging on blur
-  ctrl.searchInput.on('blur', function() {
+  ctrl.searchInput.on('blur', function($event) {
+    // do not tag on blur if focus is going to element within ui-select
+    if (ctrl.$element.has($event.relatedTarget).length !== 0) return;
     if (ctrl.tagging.isActivated && ctrl.tagOnBlur) {
       $timeout(function() {
         ctrl.searchInput.triggerHandler('tagged');
