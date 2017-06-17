@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2017-06-14T23:04:00.285Z
+ * Version: 0.19.6 - 2017-06-17T00:23:34.374Z
  * License: MIT
  */
 
@@ -828,6 +828,7 @@ uis.controller('uiSelectCtrl',
 
     var input = ctrl.searchInput[0],
         container = ctrl.searchInput.parent().parent()[0],
+        minInputWidth = 50,
         calculateContainerWidth = function() {
           // Return the container width only if the search input is visible
           return container.clientWidth * !!input.offsetParent;
@@ -837,12 +838,12 @@ uis.controller('uiSelectCtrl',
             return false;
           }
           var inputWidth = containerWidth - input.offsetLeft - 10;
-          if (inputWidth < 50) inputWidth = containerWidth;
+          if (inputWidth < minInputWidth) inputWidth = containerWidth;
           ctrl.searchInput.css('width', inputWidth+'px');
           return true;
         };
 
-    ctrl.searchInput.css('width', '10px');
+    ctrl.searchInput.css('width', minInputWidth+'px');
     $timeout(function() { //Give tags time to render correctly
       if (sizeWatch === null && !updateIfVisible(calculateContainerWidth())) {
         sizeWatch = $scope.$watch(function() {
