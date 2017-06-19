@@ -563,7 +563,9 @@ uis.controller('uiSelectCtrl',
           return true;
         };
 
-    ctrl.searchInput.css('width', minInputWidth+'px');
+    // set width to minimum allowed width plus some padding
+    // to fit it on the same line as last tag if possible
+    ctrl.searchInput.css('width', (minInputWidth + 10)+'px');
     $timeout(function() { //Give tags time to render correctly
       if (sizeWatch === null && !updateIfVisible(calculateContainerWidth())) {
         sizeWatch = $scope.$watch(function() {
