@@ -2922,6 +2922,17 @@ describe('ui-select tests', function() {
       $timeout.flush();
       expect(el.scope().$select.selected).toEqual(['tag,tag']);
     });
+
+    it('should not tag on blur when blur event has related target', function () {
+      var el = createUiSelectMultiple({tagging: true, tagOnBlur: true});
+      setSearchText(el, 's');
+      openDropdown(el);
+      event = new jQuery.Event('blur');
+      event.relatedTarget = el.find('.ui-select-choices-row div:contains("Samantha")');
+      el.scope().$select.searchInput.trigger(event);
+      $timeout.flush();
+      expect(el.scope().$select.selected).toEqual([])
+    });
   });
 
   describe('resetSearchInput option multiple', function () {
