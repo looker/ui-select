@@ -536,7 +536,7 @@ uis.controller('uiSelectCtrl',
   ctrl.sizeSearchInput = function() {
 
     var input = ctrl.searchInput[0],
-        container = ctrl.$element[0],
+        container = ctrl.searchInput.parent().parent()[0],
         minInputWidth = 50,
         calculateContainerWidth = function() {
           // Return the container width only if the search input is visible
@@ -546,7 +546,7 @@ uis.controller('uiSelectCtrl',
           if (containerWidth === 0) {
             return false;
           }
-          var inputWidth = containerWidth - input.offsetLeft;
+          var inputWidth = containerWidth - input.offsetLeft - 10;
           if (inputWidth < minInputWidth) inputWidth = containerWidth;
           ctrl.searchInput.css('width', inputWidth+'px');
           return true;
