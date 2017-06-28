@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2017-06-19T20:41:18.435Z
+ * Version: 0.19.6 - 2017-06-28T23:24:50.049Z
  * License: MIT
  */
 
@@ -740,11 +740,11 @@ uis.controller('uiSelectCtrl',
   };
 
   // Closes the dropdown
-  ctrl.close = function(skipFocusser) {
+  ctrl.close = function(skipFocusser, forceClearSearchInput) {
     if (!ctrl.open) return;
     if (ctrl.ngModel && ctrl.ngModel.$setTouched) ctrl.ngModel.$setTouched();
     ctrl.open = false;
-    if (!ctrl.tagOnBlur) {
+    if (!ctrl.tagOnBlur || forceClearSearchInput) {
       _resetSearchInput();
     }
     $scope.$broadcast('uis:close', skipFocusser);
@@ -1831,7 +1831,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
         if(caretPosition > 0 || ($select.search.length && key == KEY.RIGHT)) return false;
 
-        $select.close();
+        $select.close(null, true);
 
         function getNewActiveMatchIndex(){
           switch(key){

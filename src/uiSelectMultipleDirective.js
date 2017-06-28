@@ -249,7 +249,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
         if(caretPosition > 0 || ($select.search.length && key == KEY.RIGHT)) return false;
 
-        $select.close();
+        $select.close(null, true);
 
         function getNewActiveMatchIndex(){
           switch(key){
