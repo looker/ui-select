@@ -449,11 +449,11 @@ uis.controller('uiSelectCtrl',
   };
 
   // Closes the dropdown
-  ctrl.close = function(skipFocusser) {
+  ctrl.close = function(skipFocusser, forceClearSearchInput) {
     if (!ctrl.open) return;
     if (ctrl.ngModel && ctrl.ngModel.$setTouched) ctrl.ngModel.$setTouched();
     ctrl.open = false;
-    if (!ctrl.tagOnBlur) {
+    if (!ctrl.tagOnBlur || forceClearSearchInput) {
       _resetSearchInput();
     }
     $scope.$broadcast('uis:close', skipFocusser);

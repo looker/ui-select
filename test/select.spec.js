@@ -2103,6 +2103,19 @@ describe('ui-select tests', function () {
 
     });
 
+    it('should clear searchInput when pressing LEFT key from search with tag-on-blur', function () {
+
+      var el = createUiSelectMultiple({tagOnBlur: true});
+      var searchInput = el.find('.ui-select-search');
+      el.scope().$select.search = 'r';
+      scope.$digest()
+
+      searchInput[0].setSelectionRange(0,0)
+      triggerKeydown(searchInput, Key.Left);
+      expect(el.scope().$select.search).toBe("");
+
+    });
+
     it('should move between matches when pressing LEFT key from search', function () {
 
       scope.selection.selectedMultiple = [scope.people[4], scope.people[5], scope.people[6]]; //Wladimir, Samantha & Nicole
