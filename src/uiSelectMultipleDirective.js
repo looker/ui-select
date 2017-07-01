@@ -260,6 +260,18 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
         $select.close(null, true);
 
+        function deleteActiveMatch() {
+          if ($selectMultiple.allChoicesActive) {
+            $selectMultiple.removeAllChoices();
+            return false;
+          } else if (~$selectMultiple.activeMatchIndex) {
+            // Remove selected item and select next item
+            $selectMultiple.removeChoice($selectMultiple.activeMatchIndex);
+            return curr;
+          }
+          else return false;
+        }
+
         function getNewActiveMatchIndex(){
           switch(key){
             case KEY.LEFT:
@@ -297,21 +309,18 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
               }
               break;
             case KEY.DELETE:
-              if ($selectMultiple.allChoicesActive) {
-                $selectMultiple.removeAllChoices();
-                return false;
-              } else if (~$selectMultiple.activeMatchIndex) {
-                // Remove selected item and select next item
-                $selectMultiple.removeChoice($selectMultiple.activeMatchIndex);
-                return curr;
+              return deleteActiveMatch();
+            case KEY.X:
+              if (e.metaKey) {
+                return deleteActiveMatch();
               }
-              else return false;
               break;
             case KEY.A:
               if (e.metaKey) {
                 $selectMultiple.allChoicesActive = true;
                 return false;
               }
+              break;
           }
         }
 
@@ -319,6 +328,18 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
         if(!$select.selected.length || newIndex === false) $selectMultiple.activeMatchIndex = -1;
         else $selectMultiple.activeMatchIndex = Math.min(last,Math.max(first,newIndex));
+
+        if ($select.tokensToString) {
+          // select text version of token for copying
+          if ($selectMultiple.allChoicesActive) {
+            var string = $select.tokensToString($select.selected);
+            $select.searchInput.val(string).select(); // need fake input here
+          } else if ($selectMultiple.activeMatchIndex >= 0 ) {
+            var activeToken = $select.selected[$selectMultiple.activeMatchIndex];
+            var singleString = $select.tokensToString([activeToken]);
+            $select.searchInput.val(singleString).select(); // need fake input here
+          }
+        }
 
         return true;
       }

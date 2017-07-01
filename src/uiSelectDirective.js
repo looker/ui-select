@@ -114,6 +114,10 @@ uis.directive('uiSelect',
           $select.paste = scope.$eval(attrs.paste);
         });
 
+        attrs.$observe('tokensToString', function() {
+          $select.tokensToString = scope.$eval(attrs.tokensToString);
+        });
+
         attrs.$observe('tagging', function() {
           if(attrs.tagging !== undefined)
           {
@@ -389,7 +393,7 @@ uis.directive('uiSelect',
         };
 
         var opened = false;
-        
+
         scope.calculateDropdownPos = function() {
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
