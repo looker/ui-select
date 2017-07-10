@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-06-30T20:09:58.494Z
+ * Version: 0.19.8 - 2017-07-10T22:11:51.760Z
  * License: MIT
  */
 
@@ -686,7 +686,7 @@ uis.controller('uiSelectCtrl',
                 item = _replaceAllTaggingTokens(ctrl.search);
                 if (ctrl.tagging.fct) item = ctrl.tagging.fct(item);
               }
-              if (!item || angular.equals( ctrl.items[0], item ) ) {
+              if (!item) {
                 return;
               }
             } else {
