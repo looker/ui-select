@@ -1481,6 +1481,32 @@ describe('ui-select tests', function () {
     expect($(el).scope().$select.selected).toEqual(['idontexist']);
   });
 
+  it('should create tag on ENTER when dropdown open and tag equals first dropdown option exactly', function () {
+
+    scope.taggingFunc = function (name) {
+      return scope.people.filter(function(person) {
+        return person.name === name;
+      })[0]
+    };
+
+    var el = compileTemplate(
+      '<ui-select multiple ng-model="selection.selected" tagging="taggingFunc" tagging-label="false" tagging-tokens="ENTER|,"> \
+          <ui-select-match placeholder="Pick one...">{{$select.selected.name}}</ui-select-match> \
+          <ui-select-choices repeat="person in people | filter: $select.search"> \
+            <div ng-bind-html="person.name" | highlight: $select.search"></div> \
+          </ui-select-choices> \
+        </ui-select>'
+    );
+
+    var searchInput = el.find('.ui-select-search');
+
+    setSearchText(el, 'Samantha');
+    openDropdown(el);
+    triggerKeydown(searchInput, Key.Enter);
+
+    expect($(el).scope().$select.selected[0].name).toEqual('Samantha');
+  });
+
   it('should allow selecting an item (click) in single select mode with tagging enabled', function () {
 
     scope.taggingFunc = function (name) {

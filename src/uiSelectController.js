@@ -405,7 +405,7 @@ uis.controller('uiSelectCtrl',
                 item = _replaceAllTaggingTokens(ctrl.search);
                 if (ctrl.tagging.fct) item = ctrl.tagging.fct(item);
               }
-              if (!item || angular.equals( ctrl.items[0], item ) ) {
+              if (!item) {
                 return;
               }
             } else {
