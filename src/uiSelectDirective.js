@@ -466,7 +466,8 @@ uis.directive('uiSelect',
         };
 
         // Hold on to a reference to the .ui-select-dropdown element for appendDropdownToBody support.
-        var appendedDropdown = null;
+        var appendedDropdown = null,
+            dropdownWrapper = null;
 
         function positionOnlyDropdown() {
           if (!$select.appendDropdownToBody) {
@@ -476,10 +477,13 @@ uis.directive('uiSelect',
           appendedDropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
           parent = appendedDropdown.parent();
 
-          console.log("positionOnlyDropdown");
+          // Wrap the dropdown in a ui-select-container to preserve styling
+          dropdownWrapper = angular.element('<div></div>');
+          dropdownWrapper.addClass('ui-select-container ui-select-dropdown-container');
+          dropdownWrapper.append(appendedDropdown);
 
-          // Move the dropdown element to the end of the body
-          $document.find('body').append(appendedDropdown);
+          // Move the wrapped dropdown element to the end of the body
+          $document.find('body').append(dropdownWrapper);
 
           var position = uisOffset(parent);
           appendedDropdown[0].style.left = position.left + 'px';
@@ -493,10 +497,13 @@ uis.directive('uiSelect',
           if (!$select.appendDropdownToBody || !parent) {
             return;
           }
-          console.log("resetOnlyDropdown");
 
           // Move the dropdown element back to its original location in the DOM
           parent.append(appendedDropdown);
+
+          // Delete the dropdown wrapper
+          dropdownWrapper.remove();
+          dropdownWrapper = null;
 
           appendedDropdown[0].style.left = '';
           appendedDropdown[0].style.top = '';
