@@ -115,6 +115,7 @@ var uis = angular.module('ui.select', [])
     return latestId++;
   },
   appendToBody: false,
+  appendDropdownToBody: false,
   spinnerEnabled: false,
   spinnerClass: 'glyphicon glyphicon-refresh ui-select-spin',
   backspaceReset: true

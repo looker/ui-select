@@ -325,13 +325,41 @@ uis.directive('uiSelect',
         var dropdown = null,
             directionUpClassName = 'direction-up';
 
+        // Support appending only the dropdown to the body when open
+        if ($select.appendDropdownToBody) {
+          scope.$watch('$select.open', function(isOpen) {
+            if (isOpen) {
+              positionOnlyDropdown();
+            } else {
+              resetOnlyDropdown();
+            }
+          });
+
+          scope.$on('$destroy', function() {
+            resetOnlyDropdown();
+          });
+        }
+
         // Support changing the direction of the dropdown if there isn't enough space to render it.
-        scope.$watch('$select.open', function() {
+        scope.$watch('$select.open', function(isOpen) {
 
           if ($select.dropdownPosition === 'auto' || $select.dropdownPosition === 'up'){
             scope.calculateDropdownPos();
           }
 
+          if ($select.appendDropdownToBody) {
+            if (isOpen) {
+              positionOnlyDropdown();
+            } else {
+              resetOnlyDropdown();
+            }
+          }
+        });
+
+        scope.$on('$destroy', function() {
+          if ($select.appendDropdownToBody) {
+            resetOnlyDropdown();
+          }
         });
 
         var setDropdownPosUp = function(offset, offsetDropdown){
@@ -339,8 +367,14 @@ uis.directive('uiSelect',
           offset = offset || uisOffset(element);
           offsetDropdown = offsetDropdown || uisOffset(dropdown);
 
+          var top = offsetDropdown.height * -1;
+
+          if ($select.appendDropdownToBody) {
+            top = offset.top - offsetDropdown.height;
+          }
+
           dropdown[0].style.position = 'absolute';
-          dropdown[0].style.top = (offsetDropdown.height * -1) + 'px';
+          dropdown[0].style.top = top + 'px';
           element.addClass(directionUpClassName);
 
         };
@@ -352,9 +386,11 @@ uis.directive('uiSelect',
           offset = offset || uisOffset(element);
           offsetDropdown = offsetDropdown || uisOffset(dropdown);
 
-          dropdown[0].style.position = '';
-          dropdown[0].style.top = '';
-
+          // Do not change positioning when it has already been calculated when appending the dropdown to the body
+          if (!$select.appendDropdownToBody) {
+            dropdown[0].style.position = '';
+            dropdown[0].style.top = '';
+          }
         };
 
         var calculateDropdownPosAfterAnimation = function() {
@@ -389,7 +425,7 @@ uis.directive('uiSelect',
         };
 
         var opened = false;
-        
+
         scope.calculateDropdownPos = function() {
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
@@ -428,6 +464,46 @@ uis.directive('uiSelect',
             element.removeClass(directionUpClassName);
           }
         };
+
+        // Hold on to a reference to the .ui-select-dropdown element for appendDropdownToBody support.
+        var appendedDropdown = null;
+
+        function positionOnlyDropdown() {
+          if (!$select.appendDropdownToBody) {
+            return;
+          }
+
+          appendedDropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
+          parent = appendedDropdown.parent();
+
+          console.log("positionOnlyDropdown");
+
+          // Move the dropdown element to the end of the body
+          $document.find('body').append(appendedDropdown);
+
+          var position = uisOffset(parent);
+          appendedDropdown[0].style.left = position.left + 'px';
+          appendedDropdown[0].style.top = position.top + parent[0].offsetHeight + 'px';
+          appendedDropdown[0].style.width = parent[0].offsetWidth + 'px';
+
+          appendedDropdown.css('display', 'block');
+        }
+
+        function resetOnlyDropdown() {
+          if (!$select.appendDropdownToBody || !parent) {
+            return;
+          }
+          console.log("resetOnlyDropdown");
+
+          // Move the dropdown element back to its original location in the DOM
+          parent.append(appendedDropdown);
+
+          appendedDropdown[0].style.left = '';
+          appendedDropdown[0].style.top = '';
+          appendedDropdown[0].style.width = '';
+
+          appendedDropdown.css('display', '');
+        }
       };
     }
   };

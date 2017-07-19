@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-07-10T22:11:51.874Z
+ * Version: 0.19.8 - 2017-07-19T22:46:18.943Z
  * License: MIT
  */
 
@@ -198,7 +198,7 @@ body > .select2-container.open {
 }
 
 /* See Scrollable Menu with Bootstrap 3 http://stackoverflow.com/questions/19227496 */
-.ui-select-bootstrap > .ui-select-choices ,.ui-select-bootstrap > .ui-select-no-choice {
+.ui-select-choices-bootstrap, .ui-select-no-choice-bootstrap {
   width: 100%;
   height: auto;
   max-height: 200px;
@@ -261,7 +261,7 @@ body > .ui-select-bootstrap.open {
   border-right: 1px solid #428bca;
 }
 
-.ui-select-bootstrap .ui-select-choices-row>span {
+.ui-select-choices-bootstrap .ui-select-choices-row>span {
     cursor: pointer;
     display: block;
     padding: 3px 20px;
@@ -272,21 +272,22 @@ body > .ui-select-bootstrap.open {
     white-space: nowrap;
 }
 
-.ui-select-bootstrap .ui-select-choices-row>span:hover, .ui-select-bootstrap .ui-select-choices-row>span:focus {
+.ui-select-choices-bootstrap .ui-select-choices-row>span:hover,
+.ui-select-choices-bootstrap .ui-select-choices-row>span:focus {
     text-decoration: none;
     color: #262626;
     background-color: #f5f5f5;
 }
 
-.ui-select-bootstrap .ui-select-choices-row.active>span {
+.ui-select-choices-bootstrap .ui-select-choices-row.active>span {
     color: #fff;
     text-decoration: none;
     outline: 0;
     background-color: #428bca;
 }
 
-.ui-select-bootstrap .ui-select-choices-row.disabled>span,
-.ui-select-bootstrap .ui-select-choices-row.active.disabled>span {
+.ui-select-choices-bootstrap .ui-select-choices-row.disabled>span,
+.ui-select-choices-bootstrap .ui-select-choices-row.active.disabled>span {
     color: #777;
     cursor: not-allowed;
     background-color: #fff;

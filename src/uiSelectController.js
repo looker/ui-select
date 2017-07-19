@@ -38,6 +38,7 @@ uis.controller('uiSelectCtrl',
   ctrl.selected = undefined;
 
   ctrl.dropdownPosition = 'auto';
+  ctrl.appendDropdownToBody = uiSelectConfig.appendDropdownToBody;
 
   ctrl.focusser = undefined; //Reference to input element used to handle focus events
   ctrl.multiple = undefined; // Initialized inside uiSelect directive link function
@@ -752,9 +753,9 @@ uis.controller('uiSelectCtrl',
 
   // Allow tagging on blur
   ctrl.searchInput.on('blur', function($event) {
-    // do not tag on blur if focus is going to element within ui-select
-    if (ctrl.$element.has($event.relatedTarget).length) return;
     if (ctrl.tagging.isActivated && ctrl.tagOnBlur) {
+      // do not tag on blur if focus is going to element within ui-select
+      if (ctrl.$element.has($event.relatedTarget).length) return;
       $timeout(function() {
         ctrl.searchInput.triggerHandler('tagged');
         var newItem = _replaceAllTaggingTokens(ctrl.search);
