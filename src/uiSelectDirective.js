@@ -460,6 +460,11 @@ uis.directive('uiSelect',
             dropdownWrapper = null,
             parent = null;
 
+        $select.rePositionOnlyDropdown = function() {
+          resetOnlyDropdown();
+          positionOnlyDropdown();
+        };
+
         function positionOnlyDropdown() {
           if ($select.appendDropdownToBody) {
             if ($select.open) {

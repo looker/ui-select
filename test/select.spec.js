@@ -1913,6 +1913,7 @@ describe('ui-select tests', function () {
         if (attrs.limit !== undefined) { attrsHtml += ' limit="' + attrs.limit + '"'; }
         if (attrs.onSelect !== undefined) { attrsHtml += ' on-select="' + attrs.onSelect + '"'; }
         if (attrs.removeSelected !== undefined) { attrsHtml += ' remove-selected="' + attrs.removeSelected + '"'; }
+        if (attrs.appendDropdownToBody !== undefined) { attrsHtml += ' append-dropdown-to-body="' + attrs.appendDropdownToBody + '"'; }
       }
 
       return compileTemplate(
@@ -3139,6 +3140,28 @@ describe('ui-select tests', function () {
       el.scope().$select.searchInput.trigger(event);
       $timeout.flush();
       expect(el.scope().$select.selected).toEqual([])
+    });
+  });
+
+  describe('select with the append dropdown to body option multiple', function () {
+    var body;
+
+    beforeEach(inject(function ($document) {
+      body = $document.find('body')[0];
+    }));
+
+    it('should re-position dropdown when selecting item and closeOnSelect is false', function () {
+      var el = createUiSelectMultiple({ closeOnSelect: false, appendDropdownToBody: true });
+      var dropdown = el.find('.ui-select-dropdown');
+      spyOn(el.scope().$select, 'rePositionOnlyDropdown');
+
+      openDropdown(el);
+      expect(dropdown.parent()[0]).not.toBe(el[0]);
+
+      $(body).find('.ui-select-choices-row').click();
+      scope.$digest();
+
+      expect(el.scope().$select.rePositionOnlyDropdown).toHaveBeenCalled()
     });
   });
 
