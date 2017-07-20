@@ -171,6 +171,12 @@ uis.directive('uiSelect',
           $select.spinnerClass = spinnerClass !== undefined ? attrs.spinnerClass : uiSelectConfig.spinnerClass;
         });
 
+        attrs.$observe('appendDropdownToBody', function() {
+          // $eval() is needed otherwise we get a string instead of a boolean
+          var appendDropdownToBody = scope.$eval(attrs.appendDropdownToBody);
+          $select.appendDropdownToBody = appendDropdownToBody !== undefined ? appendDropdownToBody : uiSelectConfig.appendDropdownToBody;
+        });
+
         //Automatically gets focus when loaded
         if (angular.isDefined(attrs.autofocus)){
           $timeout(function(){
@@ -325,26 +331,11 @@ uis.directive('uiSelect',
         var dropdown = null,
             directionUpClassName = 'direction-up';
 
+        // Support changing the direction of the dropdown if there isn't enough space to render it.
         scope.$watch('$select.open', function(isOpen) {
 
-          // Support changing the direction of the dropdown if there isn't enough space to render it.
           if ($select.dropdownPosition === 'auto' || $select.dropdownPosition === 'up'){
             scope.calculateDropdownPos();
-          }
-
-          // Support appending only the dropdown to the body when open
-          if ($select.appendDropdownToBody) {
-            if (isOpen) {
-              positionOnlyDropdown();
-            } else {
-              resetOnlyDropdown();
-            }
-          }
-        });
-
-        scope.$on('$destroy', function() {
-          if ($select.appendDropdownToBody) {
-            resetOnlyDropdown();
           }
         });
 
@@ -451,12 +442,35 @@ uis.directive('uiSelect',
           }
         };
 
+        // Support for appending just the dropdown to the body when it's open
+        scope.$watch('$select.open', function() {
+          positionOnlyDropdown();
+        });
+
+        // Move the dropdown back to its original location when the scope is destroyed. Otherwise
+        // it might stick around when the user routes away or the select field is otherwise removed
+        scope.$on('$destroy', function() {
+          if ($select.appendDropdownToBody) {
+            resetOnlyDropdown();
+          }
+        });
+
         // Hold on to a reference to the .ui-select-dropdown element for appendDropdownToBody support.
         var appendedDropdown = null,
             dropdownWrapper = null,
             parent = null;
 
         function positionOnlyDropdown() {
+          if ($select.appendDropdownToBody) {
+            if ($select.open) {
+              appendOnlyDropdown();
+            } else {
+              resetOnlyDropdown();
+            }
+          }
+        }
+
+        function appendOnlyDropdown() {
           if (!$select.appendDropdownToBody) {
             return;
           }
@@ -473,11 +487,11 @@ uis.directive('uiSelect',
           $document.find('body').append(dropdownWrapper);
 
           var position = uisOffset(parent);
+          appendedDropdown[0].style.position = 'absolute';
           appendedDropdown[0].style.left = position.left + 'px';
-          appendedDropdown[0].style.top = position.top + parent[0].offsetHeight + 'px';
-          appendedDropdown[0].style.width = parent[0].offsetWidth + 'px';
-
-          appendedDropdown.css('display', 'block');
+          appendedDropdown[0].style.top = position.top + position.height + 'px';
+          appendedDropdown[0].style.width = position.width + 'px';
+          appendedDropdown[0].style.display = 'block';
         }
 
         function resetOnlyDropdown() {
@@ -488,15 +502,15 @@ uis.directive('uiSelect',
           // Move the dropdown element back to its original location in the DOM
           parent.append(appendedDropdown);
 
-          // Delete the dropdown wrapper
-          dropdownWrapper.remove();
-          dropdownWrapper = null;
-
+          appendedDropdown[0].style.position = '';
           appendedDropdown[0].style.left = '';
           appendedDropdown[0].style.top = '';
           appendedDropdown[0].style.width = '';
+          appendedDropdown[0].style.display = '';
 
-          appendedDropdown.css('display', '');
+          // Delete the dropdown wrapper
+          dropdownWrapper.remove();
+          dropdownWrapper = null;
         }
       };
     }

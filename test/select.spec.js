@@ -166,6 +166,7 @@ describe('ui-select tests', function () {
       if (attrs.tagOnBlur !== undefined) { attrsHtml += ' tag-on-blur="' + attrs.tagOnBlur + '"'; }
       if (attrs.title !== undefined) { attrsHtml += ' title="' + attrs.title + '"'; }
       if (attrs.appendToBody !== undefined) { attrsHtml += ' append-to-body="' + attrs.appendToBody + '"'; }
+      if (attrs.appendDropdownToBody !== undefined) { attrsHtml += ' append-dropdown-to-body="' + attrs.appendDropdownToBody + '"'; }
       if (attrs.allowClear !== undefined) { matchAttrsHtml += ' allow-clear="' + attrs.allowClear + '"'; }
       if (attrs.inputId !== undefined) { attrsHtml += ' input-id="' + attrs.inputId + '"'; }
       if (attrs.ngClass !== undefined) { attrsHtml += ' ng-class="' + attrs.ngClass + '"'; }
@@ -3338,10 +3339,12 @@ describe('ui-select tests', function () {
     });
 
     it('should be moved to the body when the appendToBody is true in uiSelectConfig', inject(function (uiSelectConfig) {
+      var appendToBody = uiSelectConfig.appendToBody;
       uiSelectConfig.appendToBody = true;
       var el = createUiSelect();
       openDropdown(el);
       expect(el.parent()[0]).toBe(body);
+      uiSelectConfig.appendToBody = appendToBody;
     }));
 
     it('should be moved to the body when opened', function () {
@@ -3377,6 +3380,69 @@ describe('ui-select tests', function () {
       expect(el.css('left')).toBe(originalLeft);
       expect(el.css('width')).toBe(originalWidth);
     });
+  });
+
+  describe('select with the append dropdown to body option', function () {
+    var body;
+
+    beforeEach(inject(function ($document) {
+      body = $document.find('body')[0];
+    }));
+
+    it('should only be moved to the body when the appendDropdownToBody option is true', function () {
+      var el = createUiSelect({ appendDropdownToBody: false });
+      var dropdown = el.find('.ui-select-dropdown');
+      openDropdown(el);
+      expect(dropdown.parent()[0]).toEqual(el[0]);
+    });
+
+    it('should be moved to the body when the appendDropdownToBody is true in uiSelectConfig', inject(function (uiSelectConfig) {
+      uiSelectConfig.appendDropdownToBody = true;
+      var el = createUiSelect();
+      var dropdown = el.find('.ui-select-dropdown');
+      openDropdown(el);
+      expect(dropdown.parent()[0]).not.toEqual(el[0]);
+      expect(dropdown.parent().parent()[0]).toBe(body);
+      uiSelectConfig.appendDropdownToBody = false;
+    }));
+
+    it('should be moved to the body when opened', function () {
+      var el = createUiSelect({ appendDropdownToBody: true });
+      var dropdown = el.find('.ui-select-dropdown');
+      openDropdown(el);
+      expect(dropdown.parent()[0]).not.toBe(el[0]);
+      closeDropdown(el);
+      expect(dropdown.parent()[0]).toBe(el[0]);
+    });
+
+    it('should remove itself from the body when the scope is destroyed', function () {
+      var el = createUiSelect({ appendDropdownToBody: true });
+      var dropdown = el.find('.ui-select-dropdown');
+      openDropdown(el);
+      expect(dropdown.parent()[0]).not.toBe(el[0]);
+      el.scope().$destroy();
+      expect(dropdown.parent()[0]).toBe(el[0]);
+    });
+
+    it('should have specific position and dimensions', function () {
+      var el = createUiSelect({ appendDropdownToBody: true });
+      var dropdown = el.find('.ui-select-dropdown');
+      var originalPosition = dropdown.css('position');
+      var originalTop = dropdown.css('top');
+      var originalLeft = dropdown.css('left');
+      var originalWidth = dropdown.css('width');
+      openDropdown(el);
+      expect(dropdown.css('position')).toBe('absolute');
+      expect(dropdown.css('top')).toBe('500px');
+      expect(dropdown.css('left')).toBe('200px');
+      expect(dropdown.css('width')).toBe('300px');
+      closeDropdown(el);
+      expect(dropdown.css('position')).toBe(originalPosition);
+      expect(dropdown.css('top')).toBe(originalTop);
+      expect(dropdown.css('left')).toBe(originalLeft);
+      expect(dropdown.css('width')).toBe(originalWidth);
+    });
+
   });
 
   describe('highlight filter', function () {
