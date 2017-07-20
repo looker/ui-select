@@ -325,28 +325,14 @@ uis.directive('uiSelect',
         var dropdown = null,
             directionUpClassName = 'direction-up';
 
-        // Support appending only the dropdown to the body when open
-        if ($select.appendDropdownToBody) {
-          scope.$watch('$select.open', function(isOpen) {
-            if (isOpen) {
-              positionOnlyDropdown();
-            } else {
-              resetOnlyDropdown();
-            }
-          });
-
-          scope.$on('$destroy', function() {
-            resetOnlyDropdown();
-          });
-        }
-
-        // Support changing the direction of the dropdown if there isn't enough space to render it.
         scope.$watch('$select.open', function(isOpen) {
 
+          // Support changing the direction of the dropdown if there isn't enough space to render it.
           if ($select.dropdownPosition === 'auto' || $select.dropdownPosition === 'up'){
             scope.calculateDropdownPos();
           }
 
+          // Support appending only the dropdown to the body when open
           if ($select.appendDropdownToBody) {
             if (isOpen) {
               positionOnlyDropdown();
@@ -467,7 +453,8 @@ uis.directive('uiSelect',
 
         // Hold on to a reference to the .ui-select-dropdown element for appendDropdownToBody support.
         var appendedDropdown = null,
-            dropdownWrapper = null;
+            dropdownWrapper = null,
+            parent = null;
 
         function positionOnlyDropdown() {
           if (!$select.appendDropdownToBody) {
@@ -479,7 +466,7 @@ uis.directive('uiSelect',
 
           // Wrap the dropdown in a ui-select-container to preserve styling
           dropdownWrapper = angular.element('<div></div>');
-          dropdownWrapper.addClass('ui-select-container ui-select-dropdown-container');
+          dropdownWrapper.addClass('ui-select-dropdown-container ui-select-container');
           dropdownWrapper.append(appendedDropdown);
 
           // Move the wrapped dropdown element to the end of the body
@@ -494,7 +481,7 @@ uis.directive('uiSelect',
         }
 
         function resetOnlyDropdown() {
-          if (!$select.appendDropdownToBody || !parent) {
+          if (!$select.appendDropdownToBody || !appendedDropdown || !parent || !dropdownWrapper) {
             return;
           }
 
