@@ -3136,7 +3136,7 @@ describe('ui-select tests', function () {
       setSearchText(el, 's');
       openDropdown(el);
       event = new jQuery.Event('blur');
-      event.relatedTarget = el.find('.ui-select-choices-row div:contains("Samantha")');
+      event.relatedTarget = el.find('.ui-select-choices-row div:contains("Samantha")')[0];
       el.scope().$select.searchInput.trigger(event);
       $timeout.flush();
       expect(el.scope().$select.selected).toEqual([])
