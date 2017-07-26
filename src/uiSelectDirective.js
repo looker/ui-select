@@ -481,6 +481,8 @@ uis.directive('uiSelect',
           }
 
           appendedDropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
+          if (!appendedDropdown.length) return; // dropdown has already been appended to body
+
           parent = appendedDropdown.parent();
 
           // Wrap the dropdown in a ui-select-container to preserve styling
@@ -492,26 +494,30 @@ uis.directive('uiSelect',
           $document.find('body').append(dropdownWrapper);
 
           var position = uisOffset(parent);
-          appendedDropdown[0].style.position = 'absolute';
-          appendedDropdown[0].style.left = position.left + 'px';
-          appendedDropdown[0].style.top = position.top + position.height + 'px';
-          appendedDropdown[0].style.width = position.width + 'px';
-          appendedDropdown[0].style.display = 'block';
+          appendedDropdown.css('position', 'absolute');
+          appendedDropdown.css('left', position.left + 'px');
+          appendedDropdown.css('top', position.top + position.height + 'px');
+          appendedDropdown.css('width', position.width + 'px');
+          appendedDropdown.css('display', 'block');
+
+          $select.uiSelectChoices = angular.element(appendedDropdown[0]);
         }
 
         function resetOnlyDropdown() {
-          if (!$select.appendDropdownToBody || !appendedDropdown || !parent || !dropdownWrapper) {
+          if (!$select.appendDropdownToBody || !appendedDropdown || !appendedDropdown.length || !parent || !dropdownWrapper) {
             return;
           }
 
           // Move the dropdown element back to its original location in the DOM
           parent.append(appendedDropdown);
 
-          appendedDropdown[0].style.position = '';
-          appendedDropdown[0].style.left = '';
-          appendedDropdown[0].style.top = '';
-          appendedDropdown[0].style.width = '';
-          appendedDropdown[0].style.display = '';
+          appendedDropdown.css('position', '');
+          appendedDropdown.css('left', '');
+          appendedDropdown.css('top', '');
+          appendedDropdown.css('width', '');
+          appendedDropdown.css('display', '');
+
+          $select.uiSelectChoices = angular.element(appendedDropdown[0]);
 
           // Delete the dropdown wrapper
           dropdownWrapper.remove();
