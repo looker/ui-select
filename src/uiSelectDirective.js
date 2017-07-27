@@ -500,6 +500,8 @@ uis.directive('uiSelect',
           appendedDropdown.css('top', position.top + position.height + 'px');
           appendedDropdown.css('width', position.width + 'px');
           appendedDropdown.css('display', 'block');
+
+          $select.uiSelectChoices = angular.element(appendedDropdown[0]);
         }
 
         function resetOnlyDropdown() {
@@ -515,6 +517,8 @@ uis.directive('uiSelect',
           appendedDropdown.css('top', '');
           appendedDropdown.css('width', '');
           appendedDropdown.css('display', '');
+
+          $select.uiSelectChoices = angular.element(appendedDropdown[0]);
 
           // Delete the dropdown wrapper
           dropdownWrapper.remove();

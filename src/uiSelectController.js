@@ -753,9 +753,12 @@ uis.controller('uiSelectCtrl',
 
   // Allow tagging on blur
   ctrl.searchInput.on('blur', function($event) {
-    // do not tag on blur if focus is going to element within ui-select
-    if (ctrl.$element.has($event.relatedTarget).length) return;
-    if (ctrl.tagging.isActivated && ctrl.tagOnBlur) {
+    if (ctrl.tagging.isActivated && ctrl.tagOnBlur && ctrl.search) {
+
+      // do not tag on blur if focus is going to choices dropdown
+      var relatedTarget = $event.relatedTarget || $event.explicitOriginalTarget;
+      if (ctrl.uiSelectChoices[0].contains(relatedTarget)) return;
+
       $timeout(function() {
         ctrl.searchInput.triggerHandler('tagged');
         var newItem = _replaceAllTaggingTokens(ctrl.search);
