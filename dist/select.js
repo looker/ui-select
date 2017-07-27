@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-07-27T17:58:15.274Z
+ * Version: 0.19.8 - 2017-07-27T22:22:54.092Z
  * License: MIT
  */
 
@@ -70,6 +70,18 @@ var KEY = {
 
 function isNil(value) {
   return angular.isUndefined(value) || value === null;
+}
+
+function getScrollParent(node) {
+  if (!node || document.body === node) {
+    return undefined;
+  }
+
+  if (node.scrollHeight > node.clientHeight) {
+    return node;
+  } else {
+    return getScrollParent(node.parentNode);
+  }
 }
 
 /**
@@ -1514,7 +1526,7 @@ uis.directive('uiSelect',
         };
 
         var opened = false;
-        
+
         scope.calculateDropdownPos = function() {
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
@@ -1566,6 +1578,19 @@ uis.directive('uiSelect',
             resetOnlyDropdown();
           }
         });
+
+        // Close the dropdown if the scrolling parent is scrolled
+        // since the appended dropdown will not scroll with the container
+        var scrollParent = angular.element(getScrollParent(element[0]));
+        if (scrollParent) {
+          scrollParent.on('scroll', function() {
+            if ($select.appendDropdownToBody && $select.open) {
+              $timeout(function() {
+                $select.close($select.skipFocusser);
+              },0);
+            }
+          });
+        }
 
         // Hold on to a reference to the .ui-select-dropdown element for appendDropdownToBody support.
         var appendedDropdown = null,
