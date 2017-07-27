@@ -33,6 +33,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         if($select.sizeSearchInput){
           $select.sizeSearchInput();
         }
+        if (!$select.closeOnSelect) {
+          $select.rePositionOnlyDropdown();
+        }
       };
 
       // Remove item from multiple select

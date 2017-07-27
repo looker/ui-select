@@ -38,6 +38,7 @@ uis.controller('uiSelectCtrl',
   ctrl.selected = undefined;
 
   ctrl.dropdownPosition = 'auto';
+  ctrl.appendDropdownToBody = uiSelectConfig.appendDropdownToBody;
 
   ctrl.focusser = undefined; //Reference to input element used to handle focus events
   ctrl.multiple = undefined; // Initialized inside uiSelect directive link function
