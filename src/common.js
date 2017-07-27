@@ -62,6 +62,18 @@ function isNil(value) {
   return angular.isUndefined(value) || value === null;
 }
 
+function getScrollParent(node) {
+  if (!node || document.body === node) {
+    return undefined;
+  }
+
+  if (node.scrollHeight > node.clientHeight) {
+    return node;
+  } else {
+    return getScrollParent(node.parentNode);
+  }
+}
+
 /**
  * Add querySelectorAll() to jqLite.
  *

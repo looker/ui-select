@@ -456,6 +456,19 @@ uis.directive('uiSelect',
           }
         });
 
+        // Close the dropdown if the scrolling parent is scrolled
+        // since the appended dropdown will not scroll with the container
+        var scrollParent = angular.element(getScrollParent(element[0]));
+        if (scrollParent) {
+          scrollParent.on('scroll', function() {
+            if ($select.appendDropdownToBody && $select.open) {
+              $timeout(function() {
+                $select.close($select.skipFocusser);
+              },0);
+            }
+          });
+        }
+
         // Hold on to a reference to the .ui-select-dropdown element for appendDropdownToBody support.
         var appendedDropdown = null,
             dropdownWrapper = null,
