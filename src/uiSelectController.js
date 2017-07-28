@@ -445,6 +445,10 @@ uis.controller('uiSelectCtrl',
         if (ctrl.closeOnSelect) {
           ctrl.close(skipFocusser);
         }
+
+        if (!skipFocusser) {
+          ctrl.setFocus();
+        }
       }
     }
   };
