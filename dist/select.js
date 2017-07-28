@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-07-27T22:22:54.092Z
+ * Version: 0.19.8 - 2017-07-28T00:19:17.284Z
  * License: MIT
  */
 
@@ -1051,7 +1051,7 @@ uis.controller('uiSelectCtrl',
     if (ctrl.tagging.isActivated && ctrl.tagOnBlur && ctrl.search) {
 
       // do not tag on blur if focus is going to choices dropdown
-      var relatedTarget = $event.relatedTarget || $event.explicitOriginalTarget;
+      var relatedTarget = $event.relatedTarget || $event.explicitOriginalTarget || document.activeElement;
       if (ctrl.uiSelectChoices[0].contains(relatedTarget)) return;
 
       $timeout(function() {
@@ -1526,7 +1526,7 @@ uis.directive('uiSelect',
         };
 
         var opened = false;
-
+        
         scope.calculateDropdownPos = function() {
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');

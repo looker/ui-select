@@ -756,7 +756,7 @@ uis.controller('uiSelectCtrl',
     if (ctrl.tagging.isActivated && ctrl.tagOnBlur && ctrl.search) {
 
       // do not tag on blur if focus is going to choices dropdown
-      var relatedTarget = $event.relatedTarget || $event.explicitOriginalTarget;
+      var relatedTarget = $event.relatedTarget || $event.explicitOriginalTarget || document.activeElement;
       if (ctrl.uiSelectChoices[0].contains(relatedTarget)) return;
 
       $timeout(function() {
