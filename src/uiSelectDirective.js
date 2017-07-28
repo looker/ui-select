@@ -403,7 +403,7 @@ uis.directive('uiSelect',
         };
 
         var opened = false;
-        
+
         scope.calculateDropdownPos = function() {
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
@@ -464,7 +464,7 @@ uis.directive('uiSelect',
             if ($select.appendDropdownToBody && $select.open) {
               $timeout(function() {
                 $select.close($select.skipFocusser);
-              },0);
+              });
             }
           });
         }
