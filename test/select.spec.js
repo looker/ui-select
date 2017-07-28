@@ -541,6 +541,16 @@ describe('ui-select tests', function () {
     expect(isDropdownOpened(el)).toEqual(false);
   });
 
+  it('should re-focus the search input when an item is selected', function () {
+    var el = createUiSelect();
+    var searchInput = el.find('.ui-select-search');
+    openDropdown(el);
+
+    spyOn(el.scope().$select, 'setFocus');
+    clickItem(el, 'Samantha');
+    expect(el.scope().$select.setFocus).toHaveBeenCalled();
+  });
+
 
   it('should open/close dropdown when clicking caret icon', function () {
 
