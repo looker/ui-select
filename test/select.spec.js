@@ -15,6 +15,8 @@ describe('ui-select tests', function () {
     Escape: 27,
     Comma: 188,
     A: 65,
+    C: 67,
+    X: 88,
   };
 
   function isNil(value) {
@@ -1914,6 +1916,7 @@ describe('ui-select tests', function () {
         if (attrs.taggingTokenEscape !== undefined) { attrsHtml += ' tagging-token-escape="' + attrs.taggingTokenEscape + '"'; }
         if (attrs.tagOnBlur !== undefined) { attrsHtml += ' tag-on-blur="' + attrs.tagOnBlur + '"'; }
         if (attrs.paste !== undefined) { attrsHtml += ' paste="' + attrs.paste + '"'; }
+        if (attrs.copying !== undefined) { attrsHtml += ' copying="' + attrs.copying + '"'; }
         if (attrs.inputId !== undefined) { attrsHtml += ' input-id="' + attrs.inputId + '"'; }
         if (attrs.groupBy !== undefined) { choicesAttrsHtml += ' group-by="' + attrs.groupBy + '"'; }
         if (attrs.uiDisableChoice !== undefined) { choicesAttrsHtml += ' ui-disable-choice="' + attrs.uiDisableChoice + '"'; }
@@ -2066,32 +2069,51 @@ describe('ui-select tests', function () {
 
     });
 
-    it('should remove highlighted match when pressing BACKSPACE key from search and decrease activeMatchIndex', function () {
+    it('should remove highlighted match when pressing BACKSPACE key and decrease activeMatchIndex', function () {
 
       scope.selection.selectedMultiple = [scope.people[4], scope.people[5], scope.people[6]]; //Wladimir, Samantha & Nicole
       var el = createUiSelectMultiple();
       var searchInput = el.find('.ui-select-search');
+      var copyInput = el.find('.ui-select-copy-input');
 
       expect(isDropdownOpened(el)).toEqual(false);
       triggerKeydown(searchInput, Key.Left);
-      triggerKeydown(searchInput, Key.Left);
-      triggerKeydown(searchInput, Key.Backspace);
+      triggerKeydown(copyInput, Key.Left);
+      triggerKeydown(copyInput, Key.Backspace);
       expect(el.scope().$select.selected).toEqual([scope.people[4], scope.people[6]]); //Wladimir & Nicole
 
       expect(el.scope().$selectMultiple.activeMatchIndex).toBe(0);
 
     });
 
-    it('should remove highlighted match when pressing DELETE key from search and keep same activeMatchIndex', function () {
+    it('should remove highlighted match when pressing DELETE key and keep same activeMatchIndex', function () {
 
       scope.selection.selectedMultiple = [scope.people[4], scope.people[5], scope.people[6]]; //Wladimir, Samantha & Nicole
       var el = createUiSelectMultiple();
       var searchInput = el.find('.ui-select-search');
+      var copyInput = el.find('.ui-select-copy-input');
 
       expect(isDropdownOpened(el)).toEqual(false);
       triggerKeydown(searchInput, Key.Left);
+      triggerKeydown(copyInput, Key.Left);
+      triggerKeydown(copyInput, Key.Delete);
+      expect(el.scope().$select.selected).toEqual([scope.people[4], scope.people[6]]); //Wladimir & Nicole
+
+      expect(el.scope().$selectMultiple.activeMatchIndex).toBe(1);
+
+    });
+
+    it('should remove highlighted match when pressing meta+X key and keep same activeMatchIndex', function () {
+
+      scope.selection.selectedMultiple = [scope.people[4], scope.people[5], scope.people[6]]; //Wladimir, Samantha & Nicole
+      var el = createUiSelectMultiple();
+      var searchInput = el.find('.ui-select-search');
+      var copyInput = el.find('.ui-select-copy-input');
+
+      expect(isDropdownOpened(el)).toEqual(false);
       triggerKeydown(searchInput, Key.Left);
-      triggerKeydown(searchInput, Key.Delete);
+      triggerKeydown(copyInput, Key.Left);
+      triggerKeydown(copyInput, Key.X, true);
       expect(el.scope().$select.selected).toEqual([scope.people[4], scope.people[6]]); //Wladimir & Nicole
 
       expect(el.scope().$selectMultiple.activeMatchIndex).toBe(1);
@@ -3001,6 +3023,32 @@ describe('ui-select tests', function () {
       });
     });
 
+    describe('copying token values', function() {
+      beforeEach(function() {
+        scope.copyingFunc = function (tokens) {
+          return tokens.join(",");
+        };
+        this.el = createUiSelectMultiple({copying: 'copyingFunc'});
+        this.searchInput = this.el.find('.ui-select-search');
+        this.copyInput = this.el.find('.ui-select-copy-input');
+        this.el.scope().$select.selected = ['tag1', 'tag2'];
+      });
+
+      it('should select highlighted token text in copy input', function() {
+        triggerKeydown(this.searchInput, Key.Left);
+        expect(this.copyInput[0].value).toEqual('tag2');
+        expect(this.copyInput[0].selectionStart).toEqual(0);
+        expect(this.copyInput[0].selectionEnd).toEqual(4);
+      });
+
+      it('should select all tokens in copy input when all are higlighted', function() {
+        triggerKeydown(this.searchInput, Key.A, true);
+        expect(this.copyInput[0].value).toEqual('tag1,tag2');
+        expect(this.copyInput[0].selectionStart).toEqual(0);
+        expect(this.copyInput[0].selectionEnd).toEqual(9);
+      });
+    });
+
     describe('selecting all tags with mod+A', function() {
       beforeEach(function() {
         this.el = createUiSelectMultiple();
@@ -3031,8 +3079,20 @@ describe('ui-select tests', function () {
         expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
       });
 
+      it('should delete all tags on backspace', function() {
+        triggerKeydown(this.searchInput, Key.Backspace);
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
+        expect(this.el.scope().$select.selected).toEqual([]);
+      });
+
       it('should delete all tags on delete', function() {
         triggerKeydown(this.searchInput, Key.Delete);
+        expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
+        expect(this.el.scope().$select.selected).toEqual([]);
+      });
+
+      it('should delete all tags on meta+x', function() {
+        triggerKeydown(this.searchInput, Key.X, true);
         expect(this.el.scope().$selectMultiple.allChoicesActive).toEqual(false);
         expect(this.el.scope().$select.selected).toEqual([]);
       });
