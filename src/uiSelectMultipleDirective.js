@@ -104,6 +104,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       //Input that will handle focus
       $select.focusInput = $select.searchInput;
 
+      // Input to handle copy & paste
+      $select.copyInput = $select.$element.querySelectorAll('input.ui-select-copy-input');
+
       //Properly check for empty if set to multiple
       ngModel.$isEmpty = function(value) {
         return !value || value.length === 0;
@@ -219,14 +222,15 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         if (oldValue && !newValue) $select.sizeSearchInput();
       });
 
-      $select.searchInput.on('keydown', function(e) {
+      function _processKeydown(e, isCopyInput) {
         var key = e.which;
         scope.$apply(function() {
           var processed = false;
           // var tagged = false; //Checkme
-          if(KEY.isHorizontalMovement(key) || KEY.isMetaAndKey(e, KEY.A)){
+          var isMatchSelectionKey = KEY.isHorizontalMovement(key) || KEY.isMetaAndKey(e, KEY.A) || KEY.isMetaAndKey(e, KEY.X);
+          if(isMatchSelectionKey){
             processed = _handleMatchSelection(e);
-          } else {
+          } else if (!isCopyInput) {
             $selectMultiple.allChoicesActive = false;
           }
           if (processed  && key != KEY.TAB) {
@@ -236,7 +240,16 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             e.stopPropagation();
           }
         });
+      }
+
+      $select.searchInput.on('keydown', function(e) {
+        _processKeydown(e, false);
       });
+
+      $select.copyInput.on('keydown', function(e) {
+        _processKeydown(e, true);
+      });
+
       function _getCaretPosition(el) {
         if(angular.isNumber(el.selectionStart)) {
           // if multiple characters are selected, return the end of selection
@@ -246,6 +259,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         // selectionStart is not supported in IE8 and we don't want hacky workarounds so we compromise
         else return el.value.length;
       }
+
       // Handles selected options in "multiple" mode
       function _handleMatchSelection(e){
         var caretPosition = _getCaretPosition($select.searchInput[0]),
@@ -262,6 +276,18 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         if(caretPosition > 0 || ($select.search.length && key == KEY.RIGHT)) return false;
 
         $select.close(null, true);
+
+        function deleteActiveMatch() {
+          if ($selectMultiple.allChoicesActive) {
+            $selectMultiple.removeAllChoices();
+            return false;
+          } else if (~$selectMultiple.activeMatchIndex) {
+            // Remove selected item and select next item
+            $selectMultiple.removeChoice($selectMultiple.activeMatchIndex);
+            return curr;
+          }
+          else return false;
+        }
 
         function getNewActiveMatchIndex(){
           switch(key){
@@ -300,21 +326,18 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
               }
               break;
             case KEY.DELETE:
-              if ($selectMultiple.allChoicesActive) {
-                $selectMultiple.removeAllChoices();
-                return false;
-              } else if (~$selectMultiple.activeMatchIndex) {
-                // Remove selected item and select next item
-                $selectMultiple.removeChoice($selectMultiple.activeMatchIndex);
-                return curr;
+              return deleteActiveMatch();
+            case KEY.X:
+              if (e.metaKey) {
+                return deleteActiveMatch();
               }
-              else return false;
               break;
             case KEY.A:
               if (e.metaKey) {
                 $selectMultiple.allChoicesActive = true;
                 return false;
               }
+              break;
           }
         }
 
@@ -322,6 +345,21 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
         if(!$select.selected.length || newIndex === false) $selectMultiple.activeMatchIndex = -1;
         else $selectMultiple.activeMatchIndex = Math.min(last,Math.max(first,newIndex));
+
+        if ($select.copying) {
+          $select.copyInput[0].focus();
+          // select text version of token for copying
+          if ($selectMultiple.allChoicesActive && $select.selected) {
+            var string = $select.copying($select.selected);
+            $select.copyInput.val(string)[0].select();
+          } else if ($selectMultiple.activeMatchIndex >= 0 ) {
+            var activeToken = $select.selected[$selectMultiple.activeMatchIndex];
+            if (activeToken) {
+              var singleString = $select.copying([activeToken]);
+              $select.copyInput.val(singleString)[0].select();
+            }
+          }
+        }
 
         return true;
       }
@@ -490,12 +528,22 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         return dupeIndex;
       }
 
-      $select.searchInput.on('blur', function() {
-        $timeout(function() {
-          $selectMultiple.allChoicesActive = false;
-          $selectMultiple.activeMatchIndex = -1;
-        });
+      $select.searchInput.on('blur', function(event) {
+        _resetActiveMatch($select.copyInput);
       });
+
+      $select.copyInput.on('blur', function(event) {
+        _resetActiveMatch($select.searchInput);
+      });
+
+      function _resetActiveMatch(otherInput) {
+        $timeout(function() {
+          if (otherInput[0] !== document.activeElement) {
+            $selectMultiple.allChoicesActive = false;
+            $selectMultiple.activeMatchIndex = -1;
+          }
+        });
+      }
 
     }
   };

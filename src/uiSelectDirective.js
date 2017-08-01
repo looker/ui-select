@@ -114,6 +114,10 @@ uis.directive('uiSelect',
           $select.paste = scope.$eval(attrs.paste);
         });
 
+        attrs.$observe('copying', function() {
+          $select.copying = scope.$eval(attrs.copying);
+        });
+
         attrs.$observe('tagging', function() {
           if(attrs.tagging !== undefined)
           {
