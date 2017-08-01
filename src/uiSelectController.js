@@ -782,7 +782,7 @@ uis.controller('uiSelectCtrl',
 
   // See https://github.com/ivaynberg/select2/blob/3.4.6/select2.js#L1431
   function _ensureHighlightVisible() {
-    var container = $element.querySelectorAll('.ui-select-choices-content');
+    var container = ctrl.uiSelectChoices;
     var choices = container.querySelectorAll('.ui-select-choices-row');
     if (choices.length < 1) {
       throw uiSelectMinErr('choices', "Expected multiple .ui-select-choices-row but got '{0}'.", choices.length);
