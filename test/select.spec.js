@@ -2894,6 +2894,28 @@ describe('ui-select tests', function () {
       expect(scope.pasteFunc).toHaveBeenCalledWith('tag1');
     });
 
+    it('should broadcast selected items when paste function returns pasted items', function() {
+      scope.pasteFunc = function(string) { return [string] };
+      spyOn(scope, '$broadcast');
+
+      var el = createUiSelectMultiple({tagging: true, paste: "pasteFunc", taggingTokens: ","});
+      clickMatch(el);
+      triggerPaste(el.find('input'), 'tag1');
+
+      expect(scope.$broadcast).toHaveBeenCalledWith('uis:select', 'tag1');
+    })
+
+    it('should not broadcast if paste function does not return pasted items', function() {
+      scope.pasteFunc = function(string) {};
+      spyOn(scope, '$broadcast');
+
+      var el = createUiSelectMultiple({tagging: true, paste: "pasteFunc", taggingTokens: ","});
+      clickMatch(el);
+      triggerPaste(el.find('input'), 'tag1');
+
+      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select', 'tag1');
+    })
+
     it('should add an id to the search input field', function () {
       var el = createUiSelectMultiple({ inputId: 'inid' });
       var searchEl = $(el).find('input.ui-select-search');
