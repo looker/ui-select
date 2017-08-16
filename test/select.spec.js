@@ -3047,6 +3047,15 @@ describe('ui-select tests', function () {
         expect(this.copyInput[0].selectionStart).toEqual(0);
         expect(this.copyInput[0].selectionEnd).toEqual(9);
       });
+
+      it('should refocus searchInput when all tokens are deleted and a copying func is provided', function() {
+        spyOn(this.el.scope().$select, 'setFocus');
+        triggerKeydown(this.searchInput, Key.Backspace);
+        triggerKeydown(this.copyInput, Key.Backspace);
+        triggerKeydown(this.copyInput, Key.Backspace);
+        expect(this.el.scope().$select.selected).toEqual([])
+        expect(this.el.scope().$select.setFocus).toHaveBeenCalled();
+      });
     });
 
     describe('selecting all tags with mod+A', function() {

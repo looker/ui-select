@@ -346,8 +346,11 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         if(!$select.selected.length || newIndex === false) $selectMultiple.activeMatchIndex = -1;
         else $selectMultiple.activeMatchIndex = Math.min(last,Math.max(first,newIndex));
 
-        if ($select.copying) {
+        var tokensAreSelected = $selectMultiple.allChoicesActive || $selectMultiple.activeMatchIndex !== -1;
+        if ($select.copying && tokensAreSelected) {
+          // focus copyInput if there is a selected token
           $select.copyInput[0].focus();
+
           // select text version of token for copying
           if ($selectMultiple.allChoicesActive && $select.selected) {
             var string = $select.copying($select.selected);
@@ -359,6 +362,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
               $select.copyInput.val(singleString)[0].select();
             }
           }
+        } else if ($select.copying && !tokensAreSelected) {
+          // refocus focus input if there are no selected tokens
+          $select.setFocus();
         }
 
         return true;
