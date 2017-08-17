@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-08-15T21:12:35.391Z
+ * Version: 0.19.8 - 2017-08-16T19:47:39.332Z
  * License: MIT
  */
 
@@ -1021,7 +1021,13 @@ uis.controller('uiSelectCtrl',
 
     if (data && data.length > 0) {
       if (ctrl.paste) {
-        ctrl.paste(data);
+        var pastedItems = ctrl.paste(data);
+        // broadcast selected items if paste function returns them
+        if (pastedItems && pastedItems.length) {
+          pastedItems.forEach(function(item) {
+            $scope.$broadcast('uis:select', item);
+          });
+        }
         ctrl.search = EMPTY_SEARCH;
         e.preventDefault();
         e.stopPropagation();
