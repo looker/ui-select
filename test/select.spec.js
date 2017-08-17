@@ -2895,7 +2895,7 @@ describe('ui-select tests', function () {
     });
 
     it('should broadcast selected items when paste function returns pasted items', function() {
-      scope.pasteFunc = function(string) { return [string] };
+      scope.pasteFunc = function(str) { return [str] };
       spyOn(scope, '$broadcast');
 
       var el = createUiSelectMultiple({tagging: true, paste: "pasteFunc", taggingTokens: ","});
@@ -2906,7 +2906,7 @@ describe('ui-select tests', function () {
     })
 
     it('should not broadcast if paste function does not return pasted items', function() {
-      scope.pasteFunc = function(string) {};
+      scope.pasteFunc = function() {};
       spyOn(scope, '$broadcast');
 
       var el = createUiSelectMultiple({tagging: true, paste: "pasteFunc", taggingTokens: ","});
