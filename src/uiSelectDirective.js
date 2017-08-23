@@ -335,12 +335,15 @@ uis.directive('uiSelect',
         var dropdown = null,
             directionUpClassName = 'direction-up';
 
-        // Support changing the direction of the dropdown if there isn't enough space to render it.
         scope.$watch('$select.open', function() {
 
+          // Support changing the direction of the dropdown if there isn't enough space to render it.
           if ($select.dropdownPosition === 'auto' || $select.dropdownPosition === 'up'){
             scope.calculateDropdownPos();
           }
+
+          // Support for appending just the dropdown to the body when it's open
+          positionOnlyDropdown();
 
         });
 
@@ -446,11 +449,6 @@ uis.directive('uiSelect',
             element.removeClass(directionUpClassName);
           }
         };
-
-        // Support for appending just the dropdown to the body when it's open
-        scope.$watch('$select.open', function() {
-          positionOnlyDropdown();
-        });
 
         // Move the dropdown back to its original location when the scope is destroyed. Otherwise
         // it might stick around when the user routes away or the select field is otherwise removed
