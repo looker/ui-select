@@ -212,6 +212,14 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         $selectMultiple.updateModel();
       });
 
+      scope.$on('uis:select-multiple', function (event, items) {
+        if ($select.selected.length >= $select.limit) {
+          return;
+        }
+        $select.selected = $select.selected.concat(items);
+        $selectMultiple.updateModel();
+      });
+
       scope.$on('uis:activate', function () {
         $selectMultiple.allChoicesActive = false;
         $selectMultiple.activeMatchIndex = -1;
