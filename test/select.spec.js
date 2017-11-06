@@ -2926,8 +2926,8 @@ describe('ui-select tests', function () {
       clickMatch(el);
       triggerPaste(el.find('input'), 'tag1');
 
-      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select', 'tag1');
-    })
+      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select-multiple', ['tag1']);
+    });
 
     it('should add an id to the search input field', function () {
       var el = createUiSelectMultiple({ inputId: 'inid' });
