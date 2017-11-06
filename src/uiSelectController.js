@@ -728,9 +728,7 @@ uis.controller('uiSelectCtrl',
         var pastedItems = ctrl.paste(data);
         // broadcast selected items if paste function returns them
         if (pastedItems && pastedItems.length) {
-          pastedItems.forEach(function(item) {
-            $scope.$broadcast('uis:select', item);
-          });
+          $scope.$broadcast('uis:select-multiple', pastedItems);
         }
         ctrl.search = EMPTY_SEARCH;
         e.preventDefault();

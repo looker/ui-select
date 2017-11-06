@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-08-16T19:47:39.332Z
+ * Version: 0.19.8 - 2017-11-06T21:30:55.814Z
  * License: MIT
  */
 
@@ -1024,9 +1024,7 @@ uis.controller('uiSelectCtrl',
         var pastedItems = ctrl.paste(data);
         // broadcast selected items if paste function returns them
         if (pastedItems && pastedItems.length) {
-          pastedItems.forEach(function(item) {
-            $scope.$broadcast('uis:select', item);
-          });
+          $scope.$broadcast('uis:select-multiple', pastedItems);
         }
         ctrl.search = EMPTY_SEARCH;
         e.preventDefault();
@@ -1941,6 +1939,14 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             $model: $select.parserResult.modelMapper(scope, locals)
           });
         });
+        $selectMultiple.updateModel();
+      });
+
+      scope.$on('uis:select-multiple', function (event, items) {
+        if ($select.selected.length >= $select.limit) {
+          return;
+        }
+        $select.selected = $select.selected.concat(items);
         $selectMultiple.updateModel();
       });
 

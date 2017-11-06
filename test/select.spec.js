@@ -2902,8 +2902,21 @@ describe('ui-select tests', function () {
       clickMatch(el);
       triggerPaste(el.find('input'), 'tag1');
 
-      expect(scope.$broadcast).toHaveBeenCalledWith('uis:select', 'tag1');
-    })
+      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select', 'tag1');
+      expect(scope.$broadcast).toHaveBeenCalledWith('uis:select-multiple', ['tag1']);
+    });
+
+    it('should broadcast pasted items once regardless of paste size', function() {
+      scope.pasteFunc = function(str) { return str.split(",") };
+      spyOn(scope, '$broadcast');
+
+      var el = createUiSelectMultiple({tagging: true, paste: "pasteFunc", taggingTokens: ","});
+      clickMatch(el);
+      triggerPaste(el.find('input'), 'tag1,tag2,tag3');
+
+      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select', 'tag1');
+      expect(scope.$broadcast).toHaveBeenCalledWith('uis:select-multiple', ['tag1', 'tag2', 'tag3']);
+    });
 
     it('should not broadcast if paste function does not return pasted items', function() {
       scope.pasteFunc = function() {};
@@ -2913,8 +2926,8 @@ describe('ui-select tests', function () {
       clickMatch(el);
       triggerPaste(el.find('input'), 'tag1');
 
-      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select', 'tag1');
-    })
+      expect(scope.$broadcast).not.toHaveBeenCalledWith('uis:select-multiple', ['tag1']);
+    });
 
     it('should add an id to the search input field', function () {
       var el = createUiSelectMultiple({ inputId: 'inid' });
