@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.8 - 2017-11-06T21:30:55.814Z
+ * Version: 0.19.8 - 2017-12-19T19:31:19.562Z
  * License: MIT
  */
 
@@ -1508,7 +1508,7 @@ uis.directive('uiSelect',
           }
         };
 
-        var calculateDropdownPosAfterAnimation = function() {
+        var calculateDropdownPosAfterAnimation = function(dropdown) {
           // Delay positioning the dropdown until all choices have been added so its height is correct.
           $timeout(function() {
             if ($select.dropdownPosition === 'up') {
@@ -1560,12 +1560,12 @@ uis.directive('uiSelect',
 
               $select.$animate.on('enter', dropdown, function (elem, phase) {
                 if (phase === 'close' && needsCalculated) {
-                  calculateDropdownPosAfterAnimation();
+                  calculateDropdownPosAfterAnimation(dropdown);
                   needsCalculated = false;
                 }
               });
             } else {
-              calculateDropdownPosAfterAnimation();
+              calculateDropdownPosAfterAnimation(dropdown);
             }
           } else {
             if (dropdown === null || dropdown.length === 0) {
