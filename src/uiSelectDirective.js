@@ -375,7 +375,7 @@ uis.directive('uiSelect',
           }
         };
 
-        var calculateDropdownPosAfterAnimation = function(dropdown) {
+        var calculateDropdownPosAfterAnimation = function() {
           // Delay positioning the dropdown until all choices have been added so its height is correct.
           $timeout(function() {
             if ($select.dropdownPosition === 'up') {
@@ -412,6 +412,12 @@ uis.directive('uiSelect',
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
 
+            if ($select.appendDropdownToBody && dropdown.length === 0) {
+              // if appendDropdownToBody is enabled and dropdown was already appended to the body,
+              // set the dropdown to the appendedDropdown
+              dropdown = appendedDropdown;
+            }
+
             if (dropdown.length === 0) {
               return;
             }
@@ -427,12 +433,12 @@ uis.directive('uiSelect',
 
               $select.$animate.on('enter', dropdown, function (elem, phase) {
                 if (phase === 'close' && needsCalculated) {
-                  calculateDropdownPosAfterAnimation(dropdown);
+                  calculateDropdownPosAfterAnimation();
                   needsCalculated = false;
                 }
               });
             } else {
-              calculateDropdownPosAfterAnimation(dropdown);
+              calculateDropdownPosAfterAnimation();
             }
           } else {
             if (dropdown === null || dropdown.length === 0) {
