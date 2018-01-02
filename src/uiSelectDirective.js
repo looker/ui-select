@@ -412,6 +412,12 @@ uis.directive('uiSelect',
           if ($select.open) {
             dropdown = angular.element(element).querySelectorAll('.ui-select-dropdown');
 
+            if ($select.appendDropdownToBody && dropdown.length === 0) {
+              // if appendDropdownToBody is enabled and dropdown was already appended to the body,
+              // set the dropdown to the appendedDropdown
+              dropdown = appendedDropdown;
+            }
+
             if (dropdown.length === 0) {
               return;
             }
