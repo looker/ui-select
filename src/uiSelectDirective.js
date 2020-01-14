@@ -181,6 +181,10 @@ uis.directive('uiSelect',
           $select.appendDropdownToBody = appendDropdownToBody !== undefined ? appendDropdownToBody : uiSelectConfig.appendDropdownToBody;
         });
 
+        scope.$watch(function () { return scope.$eval(attrs.trim); }, function(newVal) {
+          $select.trim = newVal !== undefined ? newVal : uiSelectConfig.trim;
+        });
+
         //Automatically gets focus when loaded
         if (angular.isDefined(attrs.autofocus)){
           $timeout(function(){

@@ -15,6 +15,7 @@
            aria-expanded="{{$select.open}}"
            aria-label="{{$select.baseTitle}}"
            ng-class="{'spinner': $select.refreshing}"
+           ng-trim="{{ $select.trim }}"
            ondrop="return false;">
     <input type="text"
            tabindex="-1"

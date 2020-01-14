@@ -10,6 +10,7 @@
       <input type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
        ng-class="{'select2-active': $select.refreshing}"
        role="combobox"
+       ng-trim="{{ $select.trim }}"
        aria-expanded="true"
        aria-owns="ui-select-choices-{{ $select.generatedId }}"
        aria-label="{{ $select.baseTitle }}"

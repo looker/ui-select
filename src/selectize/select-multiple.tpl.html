@@ -11,6 +11,7 @@
            ng-disabled="$select.disabled"
            aria-expanded="{{$select.open}}"
            aria-label="{{ $select.baseTitle }}"
+           ng-trim="{{ $select.trim }}"
            ondrop="return false;">
     <input type="text" tabindex="-1"
            class="ui-select-copy-input ui-select-offscreen">
