@@ -9,7 +9,8 @@
          ng-class="{ 'ui-select-search-hidden' : !$select.searchEnabled }"
          placeholder="{{$select.placeholder}}"
          ng-model="$select.search"
-         ng-show="$select.open">
+         ng-show="$select.open"
+         ng-trim="{{ $select.trim }}">
   <div class="ui-select-choices"></div>
   <div class="ui-select-no-choice"></div>
 </div>

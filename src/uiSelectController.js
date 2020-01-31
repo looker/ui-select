@@ -633,10 +633,14 @@ uis.controller('uiSelectCtrl',
       // and remove tagging token if it's the last character in string
       var chunks = search.split(ctrl.taggingTokenEscape + token);
       chunks.push(chunks.pop().replace(tokenRegex, ''));
-      search = chunks.join(token).trim();
+      search = chunks.join(token);
     } else {
       // remove tagging token if it's the last character
-      search = search.replace(tokenRegex, '').trim();
+      search = search.replace(tokenRegex, '');
+    }
+
+    if ( !!$scope.$select.trim ) {
+      search = search.trim();
     }
     return search;
   }

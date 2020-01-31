@@ -21,6 +21,7 @@
         ng-hide="$select.disabled"
         ng-model="$select.search"
         ng-click="$select.activate()"
+        ng-trim="{{ $select.trim }}"
         style="width: 34px;"
         ondrop="return false;">
       <input type="text" tabindex="-1"

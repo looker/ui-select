@@ -181,6 +181,7 @@ describe('ui-select tests', function () {
       if (attrs.backspaceReset !== undefined) { attrsHtml += ' backspace-reset="' + attrs.backspaceReset + '"'; }
       if (attrs.uiDisableChoice !== undefined) { choicesAttrsHtml += ' ui-disable-choice="' + attrs.uiDisableChoice + '"'; }
       if (attrs.removeSelected !== undefined) { attrsHtml += ' remove-selected="' + attrs.removeSelected + '"'; }
+      if (attrs.trim !== undefined) { attrsHtml += ' trim="' + attrs.trim + '"'; }
     }
 
     return compileTemplate(
@@ -1139,7 +1140,7 @@ describe('ui-select tests', function () {
       var el = createUiSelect();
       expect(el.find('.ui-select-choices-group .ui-select-choices-group-label').map(function () {
         return this.textContent;
-      }).toArray()).toEqual(["Foo", "Baz", "bar"]);
+      }).toArray()).toEqual(["Foo", "bar", "Baz"]);
     });
   });
 
@@ -3677,6 +3678,54 @@ describe('ui-select tests', function () {
       var spinner = el.find('.ui-select-refreshing');
       setSearchText(el, 'a');
       expect(el.scope().$select.spinnerClass).toBe('randomclass');
+    });
+  });
+
+  describe('Test trim', function () {
+    it('should have a default value of true', function () {
+      var control = createUiSelect();
+      expect(control.scope().$select.trim).toEqual(true);
+    });
+
+     it('should have set a value of false', function () {
+      var control = createUiSelect({ trim: false });
+      expect(control.scope().$select.trim).toEqual(false);
+    });
+
+     ['selectize', 'bootstrap', 'select2'].forEach(function (theme) {
+      describe(theme + ' theme', function () {
+        it('should define ng-trim to true when undefined', function () {
+          var el = createUiSelect({ theme});
+          expect($(el).find('.ui-select-search').attr('ng-trim')).toEqual('true');
+        });
+
+         it('should define ng-trim when true', function () {
+          var el = createUiSelect({ theme, trim: true });
+          expect($(el).find('.ui-select-search').attr('ng-trim')).toEqual('true');
+        });
+
+         it('should define ng-trim when false', function () {
+          var el = createUiSelect({ theme, trim: false });
+          expect($(el).find('.ui-select-search').attr('ng-trim')).toEqual('false');
+        });
+
+         describe('multiple', function () {
+          it('should define ng-trim to true when undefined', function () {
+            var el = createUiSelect({ multiple: 'multiple', theme });
+            expect($(el).find('.ui-select-search').attr('ng-trim')).toEqual('true');
+          });
+
+           it('should define ng-trim when true', function () {
+            var el = createUiSelect({ multiple: 'multiple', theme, trim: true });
+            expect($(el).find('.ui-select-search').attr('ng-trim')).toEqual('true');
+          });
+
+           it('should define ng-trim when false', function () {
+            var el = createUiSelect({ multiple: 'multiple', theme, trim: false });
+            expect($(el).find('.ui-select-search').attr('ng-trim')).toEqual('false');
+          });
+        });
+      });
     });
   });
 
